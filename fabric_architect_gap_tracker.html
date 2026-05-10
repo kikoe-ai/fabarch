@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fabric Architect — Knowledge Gap Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2435;
+    --border: #2a3050;
+    --border2: #3a4568;
+    --text: #e8eaf0;
+    --text2: #8b93b0;
+    --text3: #4a5270;
+    --blue: #4d7cfe;
+    --blue-dim: #1a2d6b;
+    --green: #3dd68c;
+    --green-dim: #0d3d25;
+    --amber: #f5a623;
+    --amber-dim: #3d2800;
+    --amber-light: rgba(245,166,35,0.08);
+    --coral: #ff6b6b;
+    --coral-dim: rgba(255,107,107,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --teal: #2dd4bf;
+    --teal-dim: rgba(45,212,191,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1rem 5rem;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    border-left: 3px solid var(--coral);
+    padding-left: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--coral);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .header-sub { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* Intro band */
+  .intro-band {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 1rem 0 1.75rem;
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+    line-height: 1.7;
+  }
+
+  /* Strength banner */
+  .strength-banner {
+    background: var(--green-dim);
+    border: 1px solid rgba(61,214,140,0.2);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 1.5rem;
+  }
+  .strength-banner-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 10px;
+  }
+  .strength-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+  }
+  @media (max-width: 560px) { .strength-grid { grid-template-columns: 1fr; } }
+  .strength-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.5;
+    padding: 4px 0;
+  }
+  .strength-item::before { content: "✓"; color: var(--green); flex-shrink: 0; font-family: var(--mono); }
+
+  /* Progress summary */
+  .progress-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .progress-card {
+    flex: 1;
+    min-width: 120px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    text-align: center;
+  }
+  .progress-card-num {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .progress-card-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .num-gap    { color: var(--coral); }
+  .num-active { color: var(--amber); }
+  .num-done   { color: var(--green); }
+
+  /* Section */
+  .section {
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .section-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .section-toggle:hover { background: var(--surface2); }
+
+  .priority-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 99px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .p-high   { background: var(--coral-dim);  color: var(--coral);  border: 1px solid rgba(255,107,107,0.25); }
+  .p-med    { background: var(--amber-dim);  color: var(--amber);  border: 1px solid rgba(245,166,35,0.25); }
+  .p-low    { background: var(--blue-dim);   color: var(--blue);   border: 1px solid rgba(77,124,254,0.25); }
+  .p-done   { background: var(--green-dim);  color: var(--green);  border: 1px solid rgba(61,214,140,0.25); }
+
+  .section-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .section-meta  { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  .chevron {
+    width: 16px; height: 16px;
+    color: var(--text3);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .section.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0 20px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .section.open .section-body { display: block; }
+
+  .section-desc {
+    font-size: 12.5px;
+    color: var(--text2);
+    padding: 14px 0 16px;
+    line-height: 1.7;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+
+  /* Code block */
+  .code-block {
+    background: #0a0d14;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    color: #c8cde0;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .code-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .c-key     { color: var(--blue); }
+  .c-val     { color: var(--green); }
+  .c-warn    { color: var(--amber); }
+  .c-bad     { color: var(--coral); }
+  .c-comment { color: #4a5270; font-style: italic; }
+  .c-teal    { color: var(--teal); }
+  .c-purple  { color: var(--purple); }
+
+  /* Gap items */
+  .gap-list { list-style: none; margin-top: 4px; }
+  .gap-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .gap-item:last-child { border-bottom: none; }
+  .gap-check {
+    width: 18px; height: 18px;
+    border-radius: 4px;
+    border: 2px solid var(--border2);
+    background: var(--surface2);
+    flex-shrink: 0;
+    margin-top: 2px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+  }
+  .gap-check:hover { border-color: var(--green); }
+  .gap-check.checked { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+  .gap-content { flex: 1; }
+  .gap-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
+  .gap-title.done-title { color: var(--text3); text-decoration: line-through; }
+  .gap-desc { font-size: 12px; color: var(--text2); line-height: 1.5; margin-bottom: 6px; }
+  .gap-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .gap-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text3);
+  }
+
+  /* Exercise block */
+  .exercise-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--teal);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 14px;
+    font-size: 12.5px;
+  }
+  .exercise-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 8px;
+  }
+  .exercise-steps { list-style: none; }
+  .exercise-steps li {
+    display: flex;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.5;
+    border-bottom: 1px solid var(--border);
+  }
+  .exercise-steps li:last-child { border-bottom: none; }
+  .exercise-steps li::before {
+    content: "→";
+    color: var(--teal);
+    flex-shrink: 0;
+    font-family: var(--mono);
+  }
+
+  /* Note */
+  .note {
+    display: flex;
+    gap: 10px;
+    background: var(--amber-light);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .note-green  { background: rgba(61,214,140,0.06); border-color: rgba(61,214,140,0.2); }
+  .note-blue   { background: rgba(77,124,254,0.06); border-color: rgba(77,124,254,0.2); }
+
+  /* SQL bridge table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-top: 4px;
+  }
+  .data-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--surface2);
+  }
+  .data-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td strong { color: var(--text); font-weight: 500; }
+  .data-table td code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--blue);
+  }
+
+  /* Sub divider */
+  .sub-section {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .version-tag {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 4px 14px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">Microsoft Fabric</div>
+    <h1>Architect Knowledge Gap Tracker</h1>
+    <div class="header-sub">A living document. Work through gaps in priority order. Tick items as you go. Come back and add new gaps as you discover them.</div>
+  </div>
+
+  <div class="intro-band">
+    📌 This is personal — update it as you learn. Gaps are not weaknesses, they are a roadmap. Your SQL Server architecture background already covers more than you think.
+  </div>
+
+  <!-- Strength banner -->
+  <div class="strength-banner">
+    <div class="strength-banner-title">✓ Your Existing Strengths — SQL Server Data Architect Background</div>
+    <div class="strength-grid">
+      <div class="strength-item">Data modelling and schema design — rare skill in Fabric world</div>
+      <div class="strength-item">Star schema for dimensional modelling — Gold layer design</div>
+      <div class="strength-item">ETL patterns — maps directly to medallion architecture</div>
+      <div class="strength-item">Pipeline orchestration concepts — SSIS control flow → Fabric pipeline</div>
+      <div class="strength-item">Query optimisation mindset — transfers to Spark and Delta tuning</div>
+      <div class="strength-item">Data correctness thinking — Silver layer validation instinct</div>
+      <div class="strength-item">Monitoring and operational mindset — control table, job history</div>
+      <div class="strength-item">Stakeholder communication — data architects present and negotiate</div>
+      <div class="strength-item">Understanding of indexes — maps to Delta ZORDER and partitioning</div>
+      <div class="strength-item">SSIS migration knowledge — directly relevant to client migrations</div>
+    </div>
+  </div>
+
+  <!-- Progress summary -->
+  <div class="progress-row">
+    <div class="progress-card"><div class="progress-card-num num-gap">6</div><div class="progress-card-label">Gap Areas</div></div>
+    <div class="progress-card"><div class="progress-card-num num-active">0</div><div class="progress-card-label">In Progress</div></div>
+    <div class="progress-card"><div class="progress-card-num num-done">0</div><div class="progress-card-label">Closed</div></div>
+    <div class="progress-card"><div class="progress-card-num" style="color:var(--text3);">P1</div><div class="progress-card-label">Start Here</div></div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       GAP 1 — PYSPARK
+  ══════════════════════════════════ -->
+  <div class="section" id="s-spark">
+    <button class="section-toggle" onclick="toggle('s-spark')">
+      <span class="priority-badge p-high">Priority 1</span>
+      <span class="section-title">PySpark — Reading, Reviewing, and Spotting Problems</span>
+      <span class="section-meta">Biggest gap · Lead architects must review engineer code</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        You do not need to write PySpark from scratch — your team does that. You need to read it, understand what it does, and spot when something is wrong, inefficient, or not following standards. Think of it like being a SQL DBA who reviews developer queries — you are not writing the app, you are ensuring the queries are correct and performant.
+      </div>
+
+      <!-- SQL to Spark bridge -->
+      <div class="code-label">SQL Server → PySpark — Your Mental Bridge</div>
+      <table class="data-table">
+        <thead><tr><th>SQL Server concept</th><th>PySpark equivalent</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><strong>SELECT</strong></td><td><code>df.select("col1", "col2")</code></td><td>Same intent, different syntax</td></tr>
+          <tr><td><strong>WHERE</strong></td><td><code>df.filter(df.col &gt; 10)</code></td><td>Also <code>df.where()</code></td></tr>
+          <tr><td><strong>GROUP BY</strong></td><td><code>df.groupBy("col").agg()</code></td><td>Must chain with agg function</td></tr>
+          <tr><td><strong>JOIN</strong></td><td><code>df1.join(df2, "key", "left")</code></td><td>Watch join type — default is inner</td></tr>
+          <tr><td><strong>INSERT INTO</strong></td><td><code>df.write.mode("append")</code></td><td>Append or overwrite, not row-by-row</td></tr>
+          <tr><td><strong>UPDATE / MERGE</strong></td><td><code>DeltaTable.merge()</code></td><td>Delta specific — upsert pattern</td></tr>
+          <tr><td><strong>CREATE TABLE AS</strong></td><td><code>df.write.saveAsTable()</code></td><td>Writes as Delta by default in Fabric</td></tr>
+          <tr><td><strong>Execution plan</strong></td><td><code>df.explain(True)</code></td><td>Spark DAG — different but same concept</td></tr>
+          <tr><td><strong>Row count</strong></td><td><code>df.count()</code></td><td>Triggers a full scan — use sparingly</td></tr>
+          <tr><td><strong>Temp table</strong></td><td><code>df.createOrReplaceTempView()</code></td><td>Can then query with spark.sql()</td></tr>
+        </tbody>
+      </table>
+
+      <!-- What to look for in code review -->
+      <div class="sub-section">
+        <div class="code-label">What to Look For When Reviewing PySpark Code</div>
+        <ul class="gap-list">
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Understand what a shuffle is and why it is expensive</div>
+              <div class="gap-desc">A shuffle is when Spark redistributes data across nodes — caused by joins, groupBy, distinct, orderBy. Too many shuffles kill performance. Like a table scan without an index — but 10x more expensive in distributed computing.</div>
+              <div class="gap-tags"><span class="gap-tag">performance</span><span class="gap-tag">review skill</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Spot df.collect() and df.count() used carelessly</div>
+              <div class="gap-desc">These pull all data to the driver node. On a large DataFrame this causes out-of-memory errors or massive slowdowns. Should only appear at the very end of a transformation, not in the middle of a loop.</div>
+              <div class="gap-tags"><span class="gap-tag">performance</span><span class="gap-tag">code smell</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Spot Python loops over DataFrame rows</div>
+              <div class="gap-desc">for row in df.collect() is the Spark equivalent of a cursor in SQL — almost always wrong. Spark is built for column operations on millions of rows at once. Row-by-row Python loops destroy all parallelism.</div>
+              <div class="gap-tags"><span class="gap-tag">anti-pattern</span><span class="gap-tag">performance</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Understand lazy evaluation — transformations vs actions</div>
+              <div class="gap-desc">Spark does not execute until an action is called (write, count, collect, show). Transformations (select, filter, join) just build a plan. This is why you can chain 10 operations and nothing runs until the write. Important for understanding when errors surface.</div>
+              <div class="gap-tags"><span class="gap-tag">concept</span><span class="gap-tag">debugging</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Know when spark.sql() is better than DataFrame API</div>
+              <div class="gap-desc">For complex transformations your SQL instinct is an asset. spark.sql("SELECT ...") is perfectly valid and often more readable than chained DataFrame operations. Engineers sometimes write convoluted PySpark when a SQL string would be cleaner.</div>
+              <div class="gap-tags"><span class="gap-tag">code quality</span><span class="gap-tag">your strength</span></div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Hands-on exercise -->
+      <div class="exercise-block">
+        <div class="exercise-label">🧪 Hands-On Exercise — Do This in Your Fabric Trial</div>
+        <ul class="exercise-steps">
+          <li>Open a new notebook in your DEV workspace</li>
+          <li>Read the Titanic CSV you loaded earlier into a DataFrame: <code>df = spark.read.format("csv").option("header","true").load("path")</code></li>
+          <li>Write a PySpark query that groups by Pclass and counts survivors — use both the DataFrame API and spark.sql() — compare them</li>
+          <li>Run df.explain(True) and look at the physical plan — notice the scan and any exchanges (shuffles)</li>
+          <li>Try df.collect() on a small dataset — understand what came back and why it would be dangerous on 10 million rows</li>
+          <li>Ask your data engineers to explain any PySpark code they write — make it a habit in code review</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       GAP 2 — DELTA LAKE
+  ══════════════════════════════════ -->
+  <div class="section" id="s-delta">
+    <button class="section-toggle" onclick="toggle('s-delta')">
+      <span class="priority-badge p-high">Priority 2</span>
+      <span class="section-title">Delta Lake — OPTIMIZE, ZORDER, VACUUM, Time Travel</span>
+      <span class="section-meta">The storage layer everything in Fabric is built on</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Delta Lake is to Fabric what SQL Server storage engine is to databases. You do not need to know the internals deeply but you must know how to maintain it, when it degrades, and how to fix it. This maps almost perfectly to SQL Server index maintenance.
+      </div>
+
+      <!-- SQL bridge -->
+      <div class="code-label">SQL Server Index Maintenance → Delta Maintenance</div>
+      <table class="data-table">
+        <thead><tr><th>SQL Server</th><th>Delta Lake equivalent</th><th>When to run</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Rebuild / Reorganise index</strong></td><td><code>OPTIMIZE tablename</code></td><td>After large data loads — compacts small Parquet files into larger ones</td></tr>
+          <tr><td><strong>Index on specific columns</strong></td><td><code>OPTIMIZE tablename ZORDER BY (col)</code></td><td>On columns used in WHERE filters — co-locates data for faster reads</td></tr>
+          <tr><td><strong>Shrink / cleanup log</strong></td><td><code>VACUUM tablename RETAIN 168 HOURS</code></td><td>Weekly — removes old Parquet files no longer needed</td></tr>
+          <tr><td><strong>Transaction log</strong></td><td>Delta transaction log (_delta_log folder)</td><td>Automatic — but VACUUM controls how much history is kept</td></tr>
+          <tr><td><strong>Point-in-time restore</strong></td><td><code>SELECT * FROM table TIMESTAMP AS OF '2026-05-01'</code></td><td>Query historical data — works until VACUUM removes it</td></tr>
+          <tr><td><strong>Table statistics</strong></td><td>Delta statistics collected automatically on write</td><td>No manual action needed — unlike SQL Server UPDATE STATISTICS</td></tr>
+        </tbody>
+      </table>
+
+      <!-- Key concepts -->
+      <div class="sub-section">
+        <div class="code-label">Key Concepts to Understand</div>
+        <ul class="gap-list">
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Small file problem — why it happens and how OPTIMIZE fixes it</div>
+              <div class="gap-desc">Every incremental load appends new Parquet files. Over time a table accumulates thousands of tiny files — like having millions of 1-row database files. Queries slow to a crawl because Spark must open every file. OPTIMIZE compacts them back into larger files. Run after every significant data load on large tables.</div>
+              <div class="gap-tags"><span class="gap-tag">performance</span><span class="gap-tag">maintenance</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">ZORDER — when to use it and which columns to choose</div>
+              <div class="gap-desc">ZORDER physically co-locates rows with similar values of a column in the same Parquet file. Subsequent queries filtering on that column read far fewer files. Choose columns that appear in WHERE clauses most often — typically date columns and entity IDs. Do not ZORDER every column — pick the top 1 or 2.</div>
+              <div class="gap-tags"><span class="gap-tag">performance</span><span class="gap-tag">architecture decision</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">VACUUM — what it deletes and the 7-day safety window</div>
+              <div class="gap-desc">Delta keeps old versions of data files to support time travel. VACUUM deletes files older than the retention period you specify. Default is 7 days (168 hours). Never VACUUM below 7 days — it breaks time travel and Delta streaming. For Bronze tables consider keeping longer retention as audit history.</div>
+              <div class="gap-tags"><span class="gap-tag">maintenance</span><span class="gap-tag">risk</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Time travel — querying historical versions</div>
+              <div class="gap-desc">Delta keeps every version of a table. You can query any past state by timestamp or version number. Invaluable for debugging — "what did this table look like before yesterday's bad pipeline run?" Works until VACUUM removes the old files. This is your audit and recovery mechanism — more powerful than SQL Server transaction log for data recovery.</div>
+              <div class="gap-tags"><span class="gap-tag">recovery</span><span class="gap-tag">audit</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Schema evolution — how Delta handles column additions</div>
+              <div class="gap-desc">When a source adds a new column, Delta can automatically add it to the table schema with .option("mergeSchema", "true"). Without this, new columns cause the pipeline to fail. Decide per table whether schema evolution is allowed or whether schema changes must be explicit and reviewed.</div>
+              <div class="gap-tags"><span class="gap-tag">architecture decision</span><span class="gap-tag">pipeline resilience</span></div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="exercise-block">
+        <div class="exercise-label">🧪 Hands-On Exercise — Do This in Your Fabric Trial</div>
+        <ul class="exercise-steps">
+          <li>Write your Titanic DataFrame to a Delta table: <code>df.write.format("delta").saveAsTable("titanic_test")</code></li>
+          <li>Append it again 5 more times to simulate incremental loads creating small files</li>
+          <li>Run: <code>OPTIMIZE titanic_test ZORDER BY (PassengerId)</code> — watch the file count change</li>
+          <li>Query a historical version: <code>SELECT * FROM titanic_test VERSION AS OF 1</code></li>
+          <li>Run: <code>DESCRIBE HISTORY titanic_test</code> — see every operation recorded</li>
+          <li>Run VACUUM and see what it reports it would delete</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       GAP 3 — POWER BI AND GOLD LAYER
+  ══════════════════════════════════ -->
+  <div class="section" id="s-powerbi">
+    <button class="section-toggle" onclick="toggle('s-powerbi')">
+      <span class="priority-badge p-high">Priority 3</span>
+      <span class="section-title">Power BI — Gold Layer Design for Direct Lake</span>
+      <span class="section-meta">Your schema design directly impacts BI performance</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        You do not need to write DAX or build reports. You need to design the Gold layer correctly so the BI developer's job is easy and reports are fast. A poorly designed Gold layer makes every DAX measure hard to write and every report slow to load.
+      </div>
+
+      <!-- Connectivity modes -->
+      <div class="code-label">Connectivity Modes — The Architecture Decision You Own</div>
+      <div class="code-block"><span class="c-key">Direct Lake</span>   → reads Delta files directly — fastest, no data copy
+               requires Gold layer as Delta tables in Fabric Lakehouse
+               full features need F64+ capacity
+               <span class="c-val">recommended default for Fabric-native Gold layer</span>
+
+<span class="c-warn">DirectQuery</span>   → queries source at report load time
+               always fresh but slower — every visual fires a query
+               use for: real-time requirements, data too large for import
+               works on any SKU
+
+<span class="c-comment">Import      </span>   → data copied into Power BI model memory
+               fastest report performance but stale until refresh
+               use for: small-medium datasets, complex DAX, legacy approach</div>
+
+      <!-- What you must know about star schema -->
+      <div class="sub-section">
+        <div class="code-label">Star Schema for Gold — What You Must Get Right</div>
+        <ul class="gap-list">
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Design fact tables with integer surrogate keys — not natural keys</div>
+              <div class="gap-desc">Power BI relationship joins on integer keys are significantly faster than joins on strings or composite keys. Your Gold fact tables should have a surrogate key column even if the Silver layer uses natural keys. This is standard dimensional modelling — your SQL background already knows this.</div>
+              <div class="gap-tags"><span class="gap-tag">schema design</span><span class="gap-tag">your strength</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Always include a date dimension table — dim_date</div>
+              <div class="gap-desc">Power BI time intelligence DAX (YTD, MTD, same period last year) works best against a proper date dimension. Generate it once as a Gold table covering all years in scope. Every fact table connects to it via a date surrogate key. Without it, the BI developer writes much more complex DAX.</div>
+              <div class="gap-tags"><span class="gap-tag">schema design</span><span class="gap-tag">BI impact</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Understand why many-to-many relationships cause DAX problems</div>
+              <div class="gap-desc">Power BI prefers one-to-many relationships from dimension to fact. Many-to-many relationships require bidirectional cross-filtering which slows every visual and makes DAX unpredictable. Design the Gold schema to avoid many-to-many wherever possible — use bridge tables when necessary.</div>
+              <div class="gap-tags"><span class="gap-tag">schema design</span><span class="gap-tag">BI impact</span></div>
+            </div>
+          </li>
+          <li class="gap-item">
+            <div class="gap-check" onclick="toggleCheck(this)"></div>
+            <div class="gap-content">
+              <div class="gap-title">Know the difference between measures and calculated columns in DAX</div>
+              <div class="gap-desc">You do not need to write DAX but you need to understand this distinction. Calculated columns are computed at refresh time and stored — expensive for large tables. Measures are computed at query time — always preferred. If a BI developer asks you if something should be a Gold table column or a measure, you need to have an opinion.</div>
+              <div class="gap-tags"><span class="gap-tag">DAX basics</span><span class="gap-tag">architecture decision</span></div>
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="exercise-block">
+        <div class="exercise-label">🧪 Hands-On Exercise — Do This in Your Fabric Trial</div>
+        <ul class="exercise-steps">
+          <li>Create a simple Gold table from the Titanic data: <code>gold_titanic_survival_summary</code> — group by Pclass, count passengers, count survivors</li>
+          <li>Create a Semantic Model on top of it in Fabric — click New Semantic Model in the lakehouse</li>
+          <li>Open it in Power BI Desktop or the web editor — look at what it generated automatically</li>
+          <li>Try creating one simple measure: Total Passengers = COUNTROWS(gold_titanic_survival_summary)</li>
+          <li>Notice how Direct Lake connects — no data copy, reads Delta directly</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       GAP 4 — ONELAKE AND COST
+  ══════════════════════════════════ -->
+  <div class="section" id="s-onelake">
+    <button class="section-toggle" onclick="toggle('s-onelake')">
+      <span class="priority-badge p-med">Priority 4</span>
+      <span class="section-title">OneLake, Shortcuts, and Cost Management</span>
+      <span class="section-meta">Cloud-native concepts with no SQL Server equivalent</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        OneLake is the single storage layer underneath all of Fabric. Shortcuts allow you to reference external data without copying it. Cost management is a cloud responsibility that did not exist in the on-premises SQL Server world — every Spark job consumes compute units and that reflects in the Azure bill.
+      </div>
+
+      <div class="code-label">OneLake — Key Concepts</div>
+      <ul class="gap-list">
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Understand what OneLake is and how it relates to lakehouses</div>
+            <div class="gap-desc">OneLake is one logical data lake for the entire Fabric tenant — like a single ADLS Gen2 account shared across all workspaces. Every lakehouse you create is just a folder in OneLake. This means data in one lakehouse can be accessed by another without copying — via shortcuts.</div>
+            <div class="gap-tags"><span class="gap-tag">concept</span><span class="gap-tag">architecture</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Understand shortcuts — pointing to external data without copying</div>
+            <div class="gap-desc">A shortcut is a pointer to data sitting in ADLS Gen2, Amazon S3, Google Cloud Storage, or another Fabric lakehouse. The data stays where it is — Fabric reads it in place. Powerful for migration scenarios where existing ADLS data can be exposed in Fabric without an ETL move. No data duplication cost.</div>
+            <div class="gap-tags"><span class="gap-tag">architecture</span><span class="gap-tag">migration tool</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Understand which operations consume CU and which do not</div>
+            <div class="gap-desc">Storage in OneLake is cheap. Compute (Spark jobs, pipeline runs, Power BI refreshes) consumes CU from your capacity. A runaway Spark job on a large dataset can consume hours of CU in minutes and throttle the whole capacity. As architect you are responsible for the Azure bill not the storage cost.</div>
+            <div class="gap-tags"><span class="gap-tag">cost management</span><span class="gap-tag">capacity</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Know how to read the Fabric Capacity Metrics app</div>
+            <div class="gap-desc">Install the Fabric Capacity Metrics app from AppSource — free. Shows CU consumption over time broken down by workspace, item, and operation. Your first tool when reports are slow or pipelines are throttling. Think of it like SQL Server Activity Monitor but for the whole Fabric capacity.</div>
+            <div class="gap-tags"><span class="gap-tag">monitoring</span><span class="gap-tag">cost</span></div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="exercise-block">
+        <div class="exercise-label">🧪 Hands-On Exercise — Do This in Your Fabric Trial</div>
+        <ul class="exercise-steps">
+          <li>In your lakehouse — click New shortcut — try pointing to a public ADLS URL or another lakehouse in the same workspace</li>
+          <li>Install the Fabric Capacity Metrics app from AppSource — open it and look at your trial capacity consumption</li>
+          <li>Run a Spark notebook job and watch the CU spike appear in the metrics app</li>
+          <li>Note how long the spike lasts — this is the smoothing window Fabric uses before throttling</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       GAP 5 — GIT AND DEVOPS FOR DATA
+  ══════════════════════════════════ -->
+  <div class="section" id="s-git">
+    <button class="section-toggle" onclick="toggle('s-git')">
+      <span class="priority-badge p-med">Priority 5</span>
+      <span class="section-title">Git and DevOps — Fabric-Specific Behaviours</span>
+      <span class="section-meta">Data engineering Git has quirks SQL Server world did not have</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        You likely know Git basics. Fabric-specific Git behaviour has quirks that catch experienced developers by surprise. Knowing these means you do not get blindsided during the project.
+      </div>
+
+      <ul class="gap-list">
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Fabric items serialise to JSON in the repo — not clean code</div>
+            <div class="gap-desc">When you commit a notebook or pipeline to Git, Fabric serialises the entire item as JSON. Notebook diffs show JSON changes, not clean Python diffs. This makes PR reviews harder — you need to open the item in Fabric to review it properly, not just read the raw diff in GitHub or Azure DevOps.</div>
+            <div class="gap-tags"><span class="gap-tag">gotcha</span><span class="gap-tag">code review</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Not all Fabric items support Git yet</div>
+            <div class="gap-desc">As of May 2026, most Fabric items support Git integration but some features within items may not be captured fully. Always verify that what you committed is what gets restored when you sync to a new workspace. Test this in DEV before relying on it for PROD recovery.</div>
+            <div class="gap-tags"><span class="gap-tag">limitation</span><span class="gap-tag">risk</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Fabric deployment pipelines ≠ Azure DevOps pipelines — confusing naming</div>
+            <div class="gap-desc">Fabric has its own "deployment pipeline" feature for promoting items between DEV/TEST/PROD workspaces. Azure DevOps also has "pipelines" for CI/CD automation. These are completely separate things with the same name. In Fabric conversations always clarify which one you mean — Fabric deployment pipeline or Azure DevOps pipeline.</div>
+            <div class="gap-tags"><span class="gap-tag">naming confusion</span><span class="gap-tag">important</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Connection and credential details do not travel with Git</div>
+            <div class="gap-desc">When you promote a pipeline from DEV to PROD via the deployment pipeline, the pipeline definition moves but the connection references need to be remapped. PROD pipelines must point to PROD connections, not DEV connections. Fabric deployment rules handle this — you configure the mapping once per promotion path.</div>
+            <div class="gap-tags"><span class="gap-tag">deployment</span><span class="gap-tag">gotcha</span></div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="exercise-block">
+        <div class="exercise-label">🧪 Hands-On Exercise — Do This in Your Fabric Trial</div>
+        <ul class="exercise-steps">
+          <li>Connect your DEV workspace to a GitHub or Azure DevOps repository — Workspace settings → Git integration</li>
+          <li>Make a change to a notebook cell — commit it from the Fabric UI</li>
+          <li>Look at the raw commit in GitHub — see how the notebook is stored as JSON</li>
+          <li>Create a second workspace — sync it from the same repo branch — confirm the notebook appears correctly</li>
+          <li>Set up a Fabric deployment pipeline linking DEV → TEST — look at the deployment rules configuration</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════
+       GAP 6 — LEADING DATA ENGINEERS
+  ══════════════════════════════════ -->
+  <div class="section" id="s-leading">
+    <button class="section-toggle" onclick="toggle('s-leading')">
+      <span class="priority-badge p-low">Priority 6</span>
+      <span class="section-title">Leading Data Engineers — Mindset Differences</span>
+      <span class="section-meta">Different culture from SQL Server DBA teams</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Your experience as a data architect means you have led technical teams before. Data engineers are similar to developers and DBAs but with some cultural differences worth knowing. Understanding these prevents unnecessary friction.
+      </div>
+
+      <ul class="gap-list">
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Data engineers move fast and iterate — DBAs are more conservative</div>
+            <div class="gap-desc">SQL Server DBAs typically test extensively before any production change. Data engineers are used to running code, seeing it fail, fixing it quickly, and rerunning. This is not carelessness — it is the culture of working with distributed systems that tolerate failure. Channel this energy with proper Git branching and Bronze append-only rules rather than fighting it.</div>
+            <div class="gap-tags"><span class="gap-tag">culture</span><span class="gap-tag">team management</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">They will push back on your architecture — that is healthy</div>
+            <div class="gap-desc">Good data engineers challenge architectural decisions. When one says "why not use a Dataflow instead of a notebook here?" — engage with it. They may be right. Your job is to make the best decision for the project, not to defend the first design you drew. Being open to pushback builds trust faster than being authoritative.</div>
+            <div class="gap-tags"><span class="gap-tag">leadership</span><span class="gap-tag">trust</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">They expect code review — not just design review</div>
+            <div class="gap-desc">Coming from a DBA background you may be used to reviewing designs and ERDs. Data engineers expect you to review their actual code in PRs. This is why Priority 1 (PySpark reading) matters — if you cannot read their notebooks you cannot meaningfully review them. Even pointing out naming standard violations or missing docstrings in a PR earns respect.</div>
+            <div class="gap-tags"><span class="gap-tag">code review</span><span class="gap-tag">credibility</span></div>
+          </div>
+        </li>
+        <li class="gap-item">
+          <div class="gap-check" onclick="toggleCheck(this)"></div>
+          <div class="gap-content">
+            <div class="gap-title">Your SQL instinct is an asset — use it openly</div>
+            <div class="gap-desc">When a data engineer writes convoluted PySpark to do something that a clean SQL query would do in two lines — say so. "Have you considered using spark.sql() here? It would be more readable and easier to maintain." Your SQL depth is a genuine contribution to the team, not a weakness to hide.</div>
+            <div class="gap-tags"><span class="gap-tag">your strength</span><span class="gap-tag">team contribution</span></div>
+          </div>
+        </li>
+      </ul>
+
+      <div class="note note-green">
+        <span class="note-icon">💡</span>
+        <span>The fastest way to earn credibility with a data engineering team is to ask good questions in code review and be honest about what you are still learning. "I'm not as familiar with PySpark as I am with SQL — walk me through why you chose this approach" builds more trust than pretending to know everything.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Fabric Architect Knowledge Gap Tracker · May 2026
+    <div class="version-tag">v1.0 — 6 gap areas · Update as you close them</div>
+  </div>
+
+</div>
+
+<script>
+  function toggle(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+
+  function toggleCheck(el) {
+    el.classList.toggle('checked');
+    if (el.classList.contains('checked')) {
+      el.textContent = '✓';
+      el.nextElementSibling.querySelector('.gap-title').classList.add('done-title');
+    } else {
+      el.textContent = '';
+      el.nextElementSibling.querySelector('.gap-title').classList.remove('done-title');
+    }
+  }
+</script>
+</body>
+</html>

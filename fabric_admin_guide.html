@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fabric Admin — Setup Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2435;
+    --border: #2a3050;
+    --border2: #3a4568;
+    --text: #e8eaf0;
+    --text2: #8b93b0;
+    --text3: #4a5270;
+    --blue: #4d7cfe;
+    --blue-dim: #1a2d6b;
+    --blue-light: rgba(77,124,254,0.08);
+    --green: #3dd68c;
+    --green-dim: #0d3d25;
+    --green-light: rgba(61,214,140,0.08);
+    --amber: #f5a623;
+    --amber-dim: #3d2800;
+    --amber-light: rgba(245,166,35,0.08);
+    --coral: #ff6b6b;
+    --purple: #a78bfa;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1rem 5rem;
+  }
+
+  .page { max-width: 800px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    border-left: 3px solid var(--blue);
+    padding-left: 1.25rem;
+    margin-bottom: 2.5rem;
+  }
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .header-sub { font-size: 13px; color: var(--text2); }
+
+  /* Section wrapper */
+  .section {
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  /* Section toggle button */
+  .section-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .section-toggle:hover { background: var(--surface2); }
+
+  .step-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 99px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .badge-entra  { background: var(--amber-dim); color: var(--amber); border: 1px solid var(--amber-dim); }
+  .badge-infra  { background: var(--blue-dim);  color: var(--blue);  border: 1px solid var(--blue-dim); }
+  .badge-fabric { background: var(--green-dim); color: var(--green); border: 1px solid var(--green-dim); }
+  .badge-cloud  { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+
+  .section-title {
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+  }
+  .section-meta {
+    font-size: 11px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+  .chevron {
+    width: 16px; height: 16px;
+    color: var(--text3);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .section.open .chevron { transform: rotate(180deg); }
+
+  /* Section body */
+  .section-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .section.open .section-body { display: block; }
+
+  .section-desc {
+    font-size: 12.5px;
+    color: var(--text2);
+    padding: 12px 0 16px;
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  /* Code block */
+  .code-block {
+    background: #0a0d14;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    color: #c8cde0;
+    white-space: pre;
+    overflow-x: auto;
+    position: relative;
+  }
+  .code-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  /* Syntax colors in code */
+  .c-key   { color: var(--blue); }
+  .c-val   { color: var(--green); }
+  .c-warn  { color: var(--amber); }
+  .c-url   { color: var(--purple); text-decoration: underline; }
+  .c-comment { color: #4a5270; font-style: italic; }
+
+  /* Steps list */
+  .steps { list-style: none; margin-top: 4px; }
+  .steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { flex: 1; color: var(--text2); }
+  .step-text strong { color: var(--text); font-weight: 500; }
+  .step-text code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--blue);
+  }
+
+  /* Note box */
+  .note {
+    display: flex;
+    gap: 10px;
+    background: var(--amber-light);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+  /* Footer */
+  .footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .version-tag {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 4px 14px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">Microsoft Fabric</div>
+    <h1>Admin Setup Guide</h1>
+    <div class="header-sub">Instructions per team — expand each section to view steps.</div>
+  </div>
+
+  <!-- SECTION 1: Entra Admin -->
+  <div class="section open" id="s-entra">
+    <button class="section-toggle" onclick="toggle('s-entra')">
+      <span class="step-badge badge-entra">Step 1</span>
+      <span class="section-title">Entra Admin — Create Service Account</span>
+      <span class="section-meta">One-time setup</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        The Entra admin creates a dedicated service account that the gateway will use to register itself in the Fabric tenant. This account must have a Fabric or Power BI licence and must be excluded from MFA.
+      </div>
+
+      <div class="code-label">Service Account Request</div>
+      <div class="code-block"><span class="c-key">Account  </span> : <span class="c-val">svc-fabricgateway@yourcompany.com</span>
+<span class="c-key">Licence  </span> : <span class="c-val">Power BI Pro</span> <span class="c-comment">or Fabric Capacity licence</span>
+<span class="c-key">MFA      </span> : <span class="c-warn">Exclude from MFA policies</span>
+<span class="c-key">Password </span> : <span class="c-warn">Set to never expire</span></div>
+
+      <div class="note">
+        <span class="note-icon">⚠</span>
+        <span>Do not use a personal account. If the registering account is deactivated or leaves the company, the gateway registration will break silently.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: Infra Admin -->
+  <div class="section" id="s-infra">
+    <button class="section-toggle" onclick="toggle('s-infra')">
+      <span class="step-badge badge-infra">Step 2</span>
+      <span class="section-title">Infra Admin — Provision Server &amp; Install Gateway</span>
+      <span class="section-meta">Dev environment</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Provision one Windows server, install the gateway software, and sign in using the service account created in Step 1. Confirm the gateway shows as Online before notifying the Fabric admin.
+      </div>
+
+      <div class="code-label">Server Spec — Dev</div>
+      <div class="code-block"><span class="c-key">OS   </span> : <span class="c-val">Windows Server 2019 or 2022</span>
+<span class="c-key">CPU  </span> : <span class="c-val">4 cores</span>
+<span class="c-key">RAM  </span> : <span class="c-val">8 GB</span>
+<span class="c-key">Disk </span> : <span class="c-val">100 GB</span></div>
+
+      <div class="code-label" style="margin-top:14px;">Network Requirement</div>
+      <div class="code-block"><span class="c-key">Port 443 outbound</span> to internet  <span class="c-comment"># no inbound ports needed</span></div>
+
+      <div class="code-label" style="margin-top:14px;">Installation Steps</div>
+      <ul class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <span class="step-text">Download gateway installer from <code>https://aka.ms/on-premises-data-gateway-installer</code></span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span class="step-text">Run the installer and sign in with <strong>svc-fabricgateway@yourcompany.com</strong></span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span class="step-text">Confirm gateway status shows as <strong>Online</strong></span>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <span class="step-text">Notify Fabric Admin that gateway is ready</span>
+        </li>
+      </ul>
+
+      <div class="note">
+        <span class="note-icon">⚠</span>
+        <span>Apply antivirus exclusion on the gateway install folder — typically <code>C:\Program Files\On-premises data gateway\</code>. Antivirus scanning temp files mid-transfer causes random hard-to-diagnose failures.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: Fabric Admin -->
+  <div class="section" id="s-fabric">
+    <button class="section-toggle" onclick="toggle('s-fabric')">
+      <span class="step-badge badge-fabric">Step 3</span>
+      <span class="section-title">Fabric Admin — Configure Gateway &amp; Connections</span>
+      <span class="section-meta">Your responsibility</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Once infra confirms the gateway is online, verify it appears in Fabric, assign yourself as admin, and create connections to your data sources (SQL, SAP, Snowflake etc.).
+      </div>
+
+      <div class="code-label">Where to go in Fabric</div>
+      <div class="code-block"><span class="c-key">Settings (⚙)</span> → <span class="c-val">Manage connections and gateways</span>
+  → <span class="c-val">Connections</span> tab  → <span class="c-val">On-premises data gateways</span> tab</div>
+
+      <div class="code-label" style="margin-top:14px;">Steps</div>
+      <ul class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <span class="step-text">Confirm the gateway appears and shows as <strong>Online</strong></span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span class="step-text">Open gateway settings → add yourself and data team as <strong>Gateway Admins</strong></span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span class="step-text">Click <strong>New connection</strong> → select <strong>On-premises</strong> → choose your source type (SQL Server, SAP, Oracle etc.)</span>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <span class="step-text">Enter the data source credentials — SQL service account or Windows auth account that has read access to the source database</span>
+        </li>
+        <li>
+          <span class="step-num">5</span>
+          <span class="step-text">Click <strong>Test connection</strong> to verify — green tick means ready to use in pipelines</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- SECTION 4: Cloud Connections -->
+  <div class="section" id="s-cloud">
+    <button class="section-toggle" onclick="toggle('s-cloud')">
+      <span class="step-badge badge-cloud">Step 4</span>
+      <span class="section-title">Fabric Admin — Cloud Connections</span>
+      <span class="section-meta">Snowflake · Salesforce · REST API · Azure SQL</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Cloud connections go directly from Fabric to the cloud source — no gateway needed. No infra team involved. This is entirely the Fabric Admin's responsibility. Supported sources include Azure SQL, Snowflake, Salesforce, REST APIs, Azure Blob Storage, PostgreSQL, Amazon S3, and more.
+      </div>
+
+      <div class="code-label">Key difference vs On-premises</div>
+      <div class="code-block"><span class="c-key">On-premises</span>  needs gateway server → Infra team involved
+<span class="c-key">Cloud        </span>  direct from Fabric → <span class="c-val">Fabric Admin only</span>, no server needed</div>
+
+      <div class="code-label" style="margin-top:16px;">Where to create a Cloud Connection</div>
+      <div class="code-block"><span class="c-key">Settings (⚙)</span> → <span class="c-val">Manage connections and gateways</span>
+  → <span class="c-val">New</span> → select <span class="c-val">Cloud</span> tab
+  → pick your connector type
+  → fill in credentials
+  → <span class="c-val">Create</span></div>
+
+      <div class="code-label" style="margin-top:16px;">Authentication types available</div>
+      <div class="code-block"><span class="c-key">Basic              </span> <span class="c-comment"># username + password — Azure SQL, PostgreSQL</span>
+<span class="c-key">OAuth2             </span> <span class="c-comment"># Salesforce, SharePoint</span>
+<span class="c-key">Account Key        </span> <span class="c-comment"># Azure Blob Storage, REST APIs</span>
+<span class="c-key">Token              </span> <span class="c-comment"># token-based sources</span>
+<span class="c-key">Workspace Identity </span> <span class="c-comment"># Fabric managed identity — most secure</span>
+<span class="c-key">Service Principal  </span> <span class="c-comment"># Entra app registration — for automation</span></div>
+
+      <div class="code-label" style="margin-top:16px;">Common Cloud Sources — What to fill in</div>
+
+      <ul class="steps">
+        <li>
+          <span class="step-num">❄</span>
+          <span class="step-text">
+            <strong>Snowflake</strong> — Connection type: Snowflake. Fill in: Account identifier, Warehouse, Database, Schema. Auth: Basic (username/password) or Key Pair. You already have this working in your environment.
+          </span>
+        </li>
+        <li>
+          <span class="step-num">☁</span>
+          <span class="step-text">
+            <strong>Salesforce</strong> — Connection type: Salesforce Objects. Auth: OAuth2 — Fabric will redirect you to Salesforce login to authorise. No credentials stored manually.
+          </span>
+        </li>
+        <li>
+          <span class="step-num">🗄</span>
+          <span class="step-text">
+            <strong>Azure SQL Database</strong> — Connection type: Azure SQL Database. Fill in: Server name, Database name. Auth: Basic or Workspace Identity (recommended — no password needed).
+          </span>
+        </li>
+        <li>
+          <span class="step-num">🪣</span>
+          <span class="step-text">
+            <strong>Amazon S3</strong> — Connection type: Amazon S3. Fill in: Bucket URL, Region. Auth: Access Key + Secret Key from AWS IAM.
+          </span>
+        </li>
+        <li>
+          <span class="step-num">🌐</span>
+          <span class="step-text">
+            <strong>REST API</strong> — Connection type: REST. Fill in: Base URL. Auth: Anonymous, Basic, OAuth2, or Account Key depending on the API. For Strava this is handled in the notebook directly via Key Vault — connection not needed.
+          </span>
+        </li>
+      </ul>
+
+      <div class="code-label" style="margin-top:16px;">Steps to create any Cloud Connection</div>
+      <ul class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <span class="step-text">Go to <code>Settings → Manage connections and gateways → New</code></span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span class="step-text">Click the <strong>Cloud</strong> tab — not On-premises</span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span class="step-text">Search for your connector type (Snowflake, Salesforce, Azure SQL etc.)</span>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <span class="step-text">Fill in the server / account details and choose authentication method</span>
+        </li>
+        <li>
+          <span class="step-num">5</span>
+          <span class="step-text">Give it a clear <strong>Connection name</strong> — e.g. <code>Snowflake_DEMO_DB</code>, <code>Salesforce_Prod</code></span>
+        </li>
+        <li>
+          <span class="step-num">6</span>
+          <span class="step-text">Click <strong>Create</strong> — connection is now available to all pipelines and dataflows in the workspace</span>
+        </li>
+        <li>
+          <span class="step-num">7</span>
+          <span class="step-text">In your pipeline Copy Activity → Source → select this connection from the dropdown</span>
+        </li>
+      </ul>
+
+      <div class="note" style="background: rgba(61,214,140,0.06); border-color: rgba(61,214,140,0.2);">
+        <span class="note-icon">💡</span>
+        <span>Cloud connections are <strong>workspace-scoped</strong> and reusable — create once, use in any pipeline, dataflow, or notebook in that workspace. You already have Snowflake_DEMO_DB and Lakehouse admin connections visible in your Manage Connections screen.</span>
+      </div>
+
+      <div class="note">
+        <span class="note-icon">⚠</span>
+        <span>Avoid creating connections with your personal account credentials. Use a service account or Workspace Identity where possible — personal credentials break when you change your password or leave the organisation.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: Key Vault References -->
+  <div class="section" id="s-kv">
+    <button class="section-toggle" onclick="toggle('s-kv')">
+      <span class="step-badge badge-fabric">Step 5</span>
+      <span class="section-title">Fabric Admin — Azure Key Vault References</span>
+      <span class="section-meta">Pipelines · Dataflows · Copy Activities</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        A Key Vault reference registers your Azure Key Vault in Fabric so pipelines and dataflows can pull secrets at runtime — without hardcoding credentials inside pipeline activities. This is separate from how notebooks access Key Vault directly via notebookutils.
+      </div>
+
+      <div class="code-label">Notebook vs Pipeline — different approaches</div>
+      <div class="code-block"><span class="c-key">Notebook       </span> → <span class="c-val">notebookutils.credentials.getSecret()</span>  <span class="c-comment"># direct, no reference needed</span>
+<span class="c-key">Pipeline/Dataflow</span> → <span class="c-val">Key Vault Reference</span> registered here  <span class="c-comment"># needed for Copy Activities</span></div>
+
+      <div class="code-label" style="margin-top:16px;">When you need this</div>
+      <ul class="steps">
+        <li>
+          <span class="step-num">✅</span>
+          <span class="step-text"><strong>Pipeline Copy Activity</strong> needs a password or API key — register Key Vault reference so the pipeline fetches it at runtime</span>
+        </li>
+        <li>
+          <span class="step-num">✅</span>
+          <span class="step-text"><strong>Dataflow Gen2</strong> connecting to a source that needs credentials — Key Vault reference keeps credentials out of the dataflow definition</span>
+        </li>
+        <li>
+          <span class="step-num">✅</span>
+          <span class="step-text"><strong>REST API connector</strong> in a pipeline needing an API key — reference the secret instead of pasting the key into the activity</span>
+        </li>
+        <li>
+          <span class="step-num">❌</span>
+          <span class="step-text"><strong>Notebooks</strong> — not needed, notebooks use notebookutils directly with Managed Identity (already working in your Strava notebook)</span>
+        </li>
+      </ul>
+
+      <div class="code-label" style="margin-top:16px;">What to fill in on the screen</div>
+      <div class="code-block"><span class="c-key">Reference alias  </span> : <span class="c-val">kv-fabric-dev</span>          <span class="c-comment"># friendly name used inside Fabric</span>
+<span class="c-key">Connection type  </span> : <span class="c-val">Azure KeyVault Service</span>  <span class="c-comment"># fixed — no choice needed</span>
+<span class="c-key">Account Name     </span> : <span class="c-val">dkfabkv</span>                <span class="c-comment"># just the vault name, not the full URL</span>
+<span class="c-key">Auth method      </span> : <span class="c-val">OAuth 2.0</span>              <span class="c-comment"># uses your Entra identity</span>
+<span class="c-key">Gateway checkbox </span> : <span class="c-warn">Leave unticked</span>         <span class="c-comment"># only tick if KV is behind private network</span></div>
+
+      <div class="code-label" style="margin-top:16px;">Steps to register</div>
+      <ul class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <span class="step-text">Go to <code>Settings → Manage connections and gateways</code></span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span class="step-text">Click <strong>Azure Key Vault references</strong> tab → <strong>New</strong></span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span class="step-text">Fill in Reference alias (e.g. <code>kv-fabric-dev</code>) and Account Name (e.g. <code>dkfabkv</code>)</span>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <span class="step-text">Leave auth as <strong>OAuth 2.0</strong> and click <strong>Edit credentials</strong> to sign in and authorise Fabric to read from the vault</span>
+        </li>
+        <li>
+          <span class="step-num">5</span>
+          <span class="step-text">Click <strong>Create</strong> — the reference is now available across pipelines and dataflows in the workspace</span>
+        </li>
+      </ul>
+
+      <div class="code-label" style="margin-top:16px;">How it is used inside a Pipeline</div>
+      <div class="code-block">Pipeline → Copy Activity
+  → Source settings
+    → Credentials
+      → <span class="c-val">"Use Key Vault reference"</span>
+        → select alias  : <span class="c-val">kv-fabric-dev</span>
+        → secret name   : <span class="c-val">strava-client-secret</span>  <span class="c-comment"># exact name in Key Vault</span></div>
+
+      <div class="note" style="background: rgba(61,214,140,0.06); border-color: rgba(61,214,140,0.2);">
+        <span class="note-icon">💡</span>
+        <span>Your Key Vault <strong>dkfabkv</strong> is already configured and working with your Strava notebook. Registering it here as a reference simply makes those same secrets available to pipelines and dataflows — no new secrets need to be created.</span>
+      </div>
+
+      <div class="note">
+        <span class="note-icon">⚠</span>
+        <span>The Entra account used to authorise the Key Vault reference must have <strong>Key Vault Secrets User</strong> role on the vault in Azure. If the authorising person leaves the organisation, the reference may break — prefer a service account or Workspace Identity for production.</span>
+      </div>
+
+      <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
+        <div class="code-label">Notebook → Key Vault via notebookutils</div>
+        <div class="section-desc" style="border: none; margin-bottom: 14px; padding: 0;">
+          When a notebook calls <code style="font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 6px;color:var(--blue);">notebookutils.credentials.getSecret()</code> it uses the <strong>identity of the person who runs the notebook</strong> — not the workspace identity. This means that person must have the Key Vault Secrets User role on the vault directly.
+        </div>
+
+        <div class="code-block"><span class="c-comment"># How your Strava notebook currently accesses Key Vault</span>
+notebookutils.credentials.getSecret(key_vault_uri, "strava-client-id")
+
+<span class="c-comment"># Identity used = whoever runs the notebook (your Entra login)</span>
+<span class="c-comment"># That person must have Key Vault Secrets User role on the vault</span></div>
+
+        <div class="code-label" style="margin-top:16px;">How to grant the running user access to Key Vault</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Go to <strong>Azure Portal</strong> → your Key Vault (e.g. <code>dkfabkv</code>)</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Select <strong>Access control (IAM)</strong> → <strong>Add role assignment</strong></span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Role: select <strong>Key Vault Secrets User</strong> — allows read-only access to secret values</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Assign access to: <strong>User, group, or service principal</strong> → search for the user's Entra account</span>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <span class="step-text">Click <strong>Review + assign</strong> — allow a few minutes for the role to propagate</span>
+          </li>
+        </ul>
+      </div>
+
+      <div style="margin-top: 24px; border-top: 1px solid var(--border); padding-top: 20px;">
+        <div class="code-label">Workspace Identity — What it is and how to create it</div>
+        <div class="section-desc" style="border: none; margin-bottom: 14px; padding: 0;">
+          A Workspace Identity is an automatically managed service principal that Fabric creates and manages for your workspace. It removes the need to manage credentials manually — Fabric handles token acquisition automatically. Think of it as your workspace having its own Entra identity.
+        </div>
+
+        <div class="code-label">How to create Workspace Identity</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Go to your Fabric <strong>Workspace</strong> → click the <strong>⚙ Workspace settings</strong> icon</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Select the <strong>Workspace identity</strong> tab</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Click <strong>+ Workspace identity</strong> — Fabric automatically creates a service principal and app registration in Entra ID</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Copy the <strong>Identity ID</strong> shown on the page — you will need this to assign Key Vault permissions</span>
+          </li>
+        </ul>
+
+        <div class="code-label" style="margin-top:16px;">Grant Workspace Identity access to Key Vault</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Go to <strong>Azure Portal</strong> → your Key Vault → <strong>Access control (IAM)</strong> → <strong>Add role assignment</strong></span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Role: <strong>Key Vault Secrets User</strong></span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Assign access to: <strong>User, group, or service principal</strong> → paste the Identity ID or search by your workspace name</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Click <strong>Review + assign</strong> — wait a few minutes for propagation</span>
+          </li>
+        </ul>
+
+        <div class="note" style="margin-top:14px;">
+          <span class="note-icon">⚠</span>
+          <span><strong>Current limitation (May 2026):</strong> Workspace Identity does not yet fully work with <code style="font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 6px;">notebookutils.credentials.getSecret()</code>. It is supported for ADLS Gen2 shortcuts and pipeline connections, but notebooks still use the running user's identity for Key Vault access. Create the workspace identity now — Microsoft is actively working on full support and it will be ready when the feature ships.</span>
+        </div>
+
+        <div class="code-block" style="margin-top:14px;"><span class="c-comment"># Today — notebook uses running user identity</span>
+<span class="c-key">notebookutils.credentials.getSecret</span>(kv_uri, "secret-name")
+<span class="c-comment"># → uses YOUR Entra login → you need Key Vault Secrets User role</span>
+
+<span class="c-comment"># Future — workspace identity will be used automatically</span>
+<span class="c-comment"># → workspace service principal → no personal role assignment needed</span>
+<span class="c-comment"># → notebooks work even when run by pipeline or different user</span></div>
+
+        <div class="note" style="background: rgba(61,214,140,0.06); border-color: rgba(61,214,140,0.2); margin-top:12px;">
+          <span class="note-icon">💡</span>
+          <span>Workspace Identity is already useful today for <strong>Cloud Connections</strong> (Snowflake, Azure SQL, ADLS) and <strong>pipeline activities</strong>. Use it for those now, and it will automatically extend to notebooks once Microsoft ships full support.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION 6: Consulting Engagement -->
+  <div class="section" id="s-consult">
+    <button class="section-toggle" onclick="toggle('s-consult')">
+      <span class="step-badge" style="background:rgba(255,107,107,0.12);color:#ff6b6b;border:1px solid rgba(255,107,107,0.2);">Guide</span>
+      <span class="section-title">Consulting Engagement — Fabric Admin Setup</span>
+      <span class="section-meta">Day 1 · Handover · Exit</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        As a consultant you will not always find a Fabric Admin at the client. This section covers how to bootstrap the setup cleanly using your own account temporarily, transition to service accounts, and exit without leaving loose ends.
+      </div>
+
+      <!-- Situation Assessment -->
+      <div class="code-label">First — Assess the Situation on Day 1</div>
+      <div class="code-block"><span class="c-key">Situation 1</span> — Client has a Fabric Admin already
+  → Work with them. Request what you need. Don't touch admin settings yourself.
+
+<span class="c-key">Situation 2</span> — Client has Power BI Admin but no Fabric Admin
+  → Power BI Admin role covers Fabric Admin in most tenants.
+  → Find that person first.
+
+<span class="c-key">Situation 3</span> — Nobody has set it up yet
+  → You bootstrap it. Follow the steps below.</div>
+
+      <!-- Who can assign you -->
+      <div class="code-label" style="margin-top:16px;">Who Can Assign You Fabric Admin Role</div>
+      <ul class="steps">
+        <li>
+          <span class="step-num">✅</span>
+          <span class="step-text"><strong>Microsoft 365 Global Admin</strong> — can assign Fabric Admin role to any account</span>
+        </li>
+        <li>
+          <span class="step-num">✅</span>
+          <span class="step-text"><strong>Power Platform Admin</strong> — can assign Fabric Admin role</span>
+        </li>
+        <li>
+          <span class="step-num">✅</span>
+          <span class="step-text"><strong>Existing Fabric Admin</strong> — can assign the role to others</span>
+        </li>
+        <li>
+          <span class="step-num">❌</span>
+          <span class="step-text"><strong>You (consultant)</strong> — cannot assign yourself. Always needs one of the above.</span>
+        </li>
+      </ul>
+
+      <!-- Two accounts explained -->
+      <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+        <div class="code-label">Two Accounts — Two Different Purposes</div>
+        <div class="section-desc" style="border:none; margin-bottom:14px; padding:0;">
+          This is the most important thing to understand. Your personal consulting email and the service account serve completely different purposes. You do NOT log in daily as the service account.
+        </div>
+
+        <div class="code-block"><span class="c-key">YOUR consulting email</span>  → your daily working identity
+  Used for : building pipelines, notebooks, lakehouses, all dev work
+  Needs    : Fabric Admin role + Workspace Admin on each workspace
+  Login    : you, every day, under your own credentials
+  Audit log: <span class="c-val">"yourconsulting@email.com created pipeline"</span>  ← traceable
+
+<span class="c-key">svc-fabricadmin</span>       → unattended service identity
+  Used for : owning connections, gateway, Key Vault refs, scheduled runs
+  Needs    : Power BI Pro or Fabric licence
+  Login    : <span class="c-warn">once only</span> for initial setup tasks, then never again
+  Audit log: <span class="c-val">"svc-fabricadmin owns connection"</span>  ← permanent owner</div>
+      </div>
+
+      <!-- Engagement timeline -->
+      <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+        <div class="code-label">Engagement Timeline</div>
+
+        <div class="code-block"><span class="c-key">Day 1 — Bootstrap</span>
+  M365 Admin assigns Fabric Admin role → your consulting email
+  M365 Admin assigns Workspace Admin   → your consulting email
+  You can now access Fabric Admin portal and all workspaces
+
+<span class="c-key">Week 1 — Create Permanent Accounts</span>
+  Request Entra Admin to create:
+    <span class="c-val">svc-fabricadmin@clientcompany.com</span>    ← permanent Fabric Admin
+    <span class="c-val">svc-fabricgateway@clientcompany.com</span>  ← gateway (if on-prem sources)
+  Both need: Power BI Pro or Fabric licence, password never expires, no MFA
+
+  Log in as svc-fabricadmin once to:
+    → Create shared connections in Manage Connections and Gateways
+    → Register gateway (if needed)
+    → Authorise Key Vault references
+
+<span class="c-key">Week 1 — Identify Permanent Employee Admin</span>
+  Ask client: "Who will own Fabric Admin after I leave?"
+  Add that person as Fabric Admin now
+  Start training them on the admin portal alongside your work
+
+<span class="c-key">End of Engagement — Handover</span>
+  Verify checklist below, then ask M365 Admin to remove your email</div>
+      </div>
+
+      <!-- Day 1 request -->
+      <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+        <div class="code-label">Day 1 Request — Hand This to the Client's M365 Admin</div>
+        <div class="code-block">Before we begin the Fabric setup I need the following:
+
+<span class="c-key">1. Assign to my consulting email</span> [yourconsulting@email.com]:
+   → Fabric Administrator role  (Microsoft 365 Admin Center)
+   → Workspace Admin            (on each Fabric workspace we will use)
+
+<span class="c-key">2. Confirm I can access:</span>
+   → admin.microsoft.com
+   → portal.azure.com
+   → app.fabric.microsoft.com
+
+<span class="c-key">3. Within Week 1 please create these service accounts:</span>
+   → <span class="c-val">svc-fabricadmin@clientcompany.com</span>
+   → <span class="c-val">svc-fabricgateway@clientcompany.com</span>  (only if on-prem sources exist)
+
+   Both accounts need:
+   → Power BI Pro or Fabric licence assigned
+   → Password set to never expire
+   → Excluded from MFA policies
+   → Share password securely via [agreed secure method]
+
+My consulting email access is <span class="c-warn">temporary</span> and will be removed at end of engagement.</div>
+      </div>
+
+      <!-- How to assign Fabric Admin role -->
+      <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+        <div class="code-label">How to Assign Fabric Admin Role — Steps for M365 Admin</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Go to <code>admin.microsoft.com</code> → <strong>Users</strong> → <strong>Active users</strong></span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Select the account → <strong>Roles</strong> tab → <strong>Admin center access</strong></span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Tick <strong>Fabric Administrator</strong> → Save</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Alternatively: Fabric portal → <strong>Admin portal</strong> (bottom left gear) → <strong>Users</strong> → search account → assign role</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Audit trail -->
+      <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+        <div class="code-label">Why You Must Work Under Your Own Identity — Audit Trail</div>
+        <div class="code-block"><span class="c-warn">Wrong</span> — using svc-fabricadmin for daily work:
+  "svc-fabricadmin created pipeline"       <span class="c-comment"># who actually did this?</span>
+  "svc-fabricadmin modified lakehouse"     <span class="c-comment"># untraceable, compliance risk</span>
+
+<span class="c-val">Correct</span> — using your own email for daily work:
+  "yourconsulting@email.com created pipeline"    <span class="c-comment"># clean audit trail</span>
+  "yourconsulting@email.com modified lakehouse"  <span class="c-comment"># fully traceable</span></div>
+
+        <div class="note" style="margin-top:12px;">
+          <span class="note-icon">⚠</span>
+          <span>In regulated industries such as banking, healthcare, and government, a clean audit trail is a <strong>compliance requirement</strong>, not optional. Working under your own identity protects both you and the client if anything is ever questioned.</span>
+        </div>
+      </div>
+
+      <!-- Exit checklist -->
+      <div style="margin-top:24px; border-top:1px solid var(--border); padding-top:20px;">
+        <div class="code-label">End of Engagement — Exit Checklist</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">✅</span>
+            <span class="step-text">At least one <strong>permanent employee</strong> is assigned Fabric Admin role</span>
+          </li>
+          <li>
+            <span class="step-num">✅</span>
+            <span class="step-text"><strong>svc-fabricadmin</strong> is assigned Fabric Admin role and owns all shared connections</span>
+          </li>
+          <li>
+            <span class="step-num">✅</span>
+            <span class="step-text">All <strong>connections</strong> in Manage Connections and Gateways are owned by service accounts — not your email</span>
+          </li>
+          <li>
+            <span class="step-num">✅</span>
+            <span class="step-text">All <strong>Key Vault references</strong> authorised by service account — not your personal login</span>
+          </li>
+          <li>
+            <span class="step-num">✅</span>
+            <span class="step-text"><strong>Gateway</strong> registered under svc-fabricgateway — not your email</span>
+          </li>
+          <li>
+            <span class="step-num">✅</span>
+            <span class="step-text">Scheduled <strong>pipeline runs</strong> configured to use service account identity</span>
+          </li>
+          <li>
+            <span class="step-num">✅</span>
+            <span class="step-text">This <strong>setup guide</strong> handed over and reviewed with the permanent admin</span>
+          </li>
+          <li>
+            <span class="step-num">✅</span>
+            <span class="step-text">Ask M365 Admin to <strong>remove your consulting email</strong> from Fabric Admin role and all workspaces</span>
+          </li>
+        </ul>
+
+        <div class="note" style="background: rgba(61,214,140,0.06); border-color: rgba(61,214,140,0.2); margin-top:14px;">
+          <span class="note-icon">💡</span>
+          <span>Run through this checklist at least <strong>one week before</strong> your last day — not on the last day. It gives time to fix anything that is still tied to your personal account without rushing.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    Fabric Admin Setup Guide · Dev Environment
+    <div class="version-tag">gateway v3000.314 · May 2026</div>
+  </div>
+
+</div>
+
+<script>
+  function toggle(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+</script>
+</body>
+</html>

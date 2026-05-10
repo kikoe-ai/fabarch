@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fabric Architect — Working Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2435;
+    --border: #2a3050;
+    --border2: #3a4568;
+    --text: #e8eaf0;
+    --text2: #8b93b0;
+    --text3: #4a5270;
+    --blue: #4d7cfe;
+    --blue-dim: #1a2d6b;
+    --blue-light: rgba(77,124,254,0.08);
+    --green: #3dd68c;
+    --green-dim: #0d3d25;
+    --green-light: rgba(61,214,140,0.08);
+    --amber: #f5a623;
+    --amber-dim: #3d2800;
+    --amber-light: rgba(245,166,35,0.08);
+    --coral: #ff6b6b;
+    --coral-dim: rgba(255,107,107,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1rem 5rem;
+  }
+
+  .page { max-width: 800px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    border-left: 3px solid var(--green);
+    padding-left: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .header-sub { font-size: 13px; color: var(--text2); }
+
+  /* Companion note */
+  .companion {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    margin: 1rem 0 1.75rem;
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+  .companion span { color: var(--blue); }
+
+  /* Section wrapper */
+  .section {
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .section-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .section-toggle:hover { background: var(--surface2); }
+
+  .step-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 99px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .badge-ws      { background: var(--green-dim); color: var(--green); border: 1px solid rgba(61,214,140,0.2); }
+  .badge-cap     { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(77,124,254,0.2); }
+  .badge-tenant  { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+  .badge-deploy  { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+  .badge-monitor { background: var(--coral-dim); color: var(--coral); border: 1px solid rgba(255,107,107,0.2); }
+  .badge-git     { background: var(--surface2); color: var(--text2); border: 1px solid var(--border2); }
+  .badge-coming  { background: var(--surface2); color: var(--text3); border: 1px solid var(--border); }
+
+  .section-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .section-meta  { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  .chevron {
+    width: 16px; height: 16px;
+    color: var(--text3);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .section.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .section.open .section-body { display: block; }
+
+  .section-desc {
+    font-size: 12.5px;
+    color: var(--text2);
+    padding: 12px 0 16px;
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  /* Code block */
+  .code-block {
+    background: #0a0d14;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    color: #c8cde0;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .code-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .c-key     { color: var(--blue); }
+  .c-val     { color: var(--green); }
+  .c-warn    { color: var(--amber); }
+  .c-comment { color: #4a5270; font-style: italic; }
+  .c-coral   { color: var(--coral); }
+
+  /* Steps */
+  .steps { list-style: none; margin-top: 4px; }
+  .steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { flex: 1; color: var(--text2); }
+  .step-text strong { color: var(--text); font-weight: 500; }
+  .step-text code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--blue);
+  }
+
+  /* Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-top: 4px;
+  }
+  .data-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--surface2);
+  }
+  .data-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td strong { color: var(--text); font-weight: 500; }
+  .data-table td code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--blue);
+  }
+
+  /* Note */
+  .note {
+    display: flex;
+    gap: 10px;
+    background: var(--amber-light);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .note-green { background: rgba(61,214,140,0.06); border-color: rgba(61,214,140,0.2); }
+
+  /* Sub-divider */
+  .sub-section {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .version-tag {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 4px 14px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">Microsoft Fabric</div>
+    <h1>Architect Working Guide</h1>
+    <div class="header-sub">Day-to-day responsibilities of a Fabric Architect — workspaces, capacity, pipelines, monitoring.</div>
+  </div>
+
+  <div class="companion">
+    📎 Companion to: <span>fabric_admin_infra_guide.html</span> &nbsp;·&nbsp; That covers gateway, connections, Key Vault — typically owned by IT/ops team
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 1 — WORKSPACE MANAGEMENT
+  ═══════════════════════════════════════════════════ -->
+  <div class="section" id="s-workspace">
+    <button class="section-toggle" onclick="toggle('s-workspace')">
+      <span class="step-badge badge-ws">Day 1</span>
+      <span class="section-title">Workspace Management</span>
+      <span class="section-meta">Structure · Roles · Naming · Governance</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Workspaces are the primary unit of organisation in Fabric. Every item — lakehouse, pipeline, notebook, semantic model — lives inside a workspace. Getting the workspace structure right on Day 1 saves significant rework later.
+      </div>
+
+      <!-- Workspace vs My Workspace -->
+      <div class="code-label">Workspace vs My Workspace</div>
+      <div class="code-block"><span class="c-key">Workspace    </span> → shared, team-owned, appears in Admin portal, auditable
+<span class="c-key">My Workspace </span> → personal sandbox, <span class="c-warn">never use for production or shared work</span>
+                   cannot assign capacity, cannot use workspace identity
+                   items disappear if the user leaves the company</div>
+
+      <div class="note" style="margin-bottom:16px;">
+        <span class="note-icon">⚠</span>
+        <span>If you see pipelines or lakehouses sitting in someone's My Workspace, treat it as a risk. Move them to a proper shared workspace immediately.</span>
+      </div>
+
+      <!-- Recommended structure -->
+      <div class="code-label">Recommended Workspace Structure per Project</div>
+      <div class="code-block"><span class="c-val">WS-ProjectName-DEV</span>    ← active development, all experimentation here
+<span class="c-val">WS-ProjectName-TEST</span>   ← QA and UAT, promoted from DEV via deployment pipeline
+<span class="c-val">WS-ProjectName-PROD</span>   ← production only, restricted write access
+
+<span class="c-comment"># Separate workspace for shared/reusable assets (optional but recommended)</span>
+<span class="c-val">WS-ProjectName-SHARED</span> ← certified semantic models, shared lakehouses</div>
+
+      <!-- Naming conventions -->
+      <div class="code-label" style="margin-top:16px;">Naming Convention — Agree on Day 1</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>Pattern</th><th>Example</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>WS-{Project}-{Env}</code></td><td><code>WS-Finance-DEV</code></td><td>Most common, clear at a glance</td></tr>
+          <tr><td><code>{Dept}-{Project}-{Env}</code></td><td><code>Finance-Reporting-PROD</code></td><td>Better for large orgs with many departments</td></tr>
+          <tr><td><code>{Env}-{Project}</code></td><td><code>PROD-Finance</code></td><td>Env first — easier to filter in admin portal</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <span class="note-icon">⚠</span>
+        <span>Whatever convention you pick — agree it with the client on Day 1 and document it. Renaming workspaces later breaks Git integration, deployment pipelines, and any hardcoded references.</span>
+      </div>
+
+      <!-- Workspace roles -->
+      <div class="sub-section">
+        <div class="code-label">Workspace Roles — Who Gets What</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          Fabric has four workspace roles. Assign the minimum needed — do not give everyone Admin.
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Role</th><th>Can do</th><th>Assign to</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Admin</strong></td>
+              <td>Everything including deleting workspace, managing roles, Git settings</td>
+              <td>You (architect), lead data engineer, service account</td>
+            </tr>
+            <tr>
+              <td><strong>Member</strong></td>
+              <td>Create, edit, delete all items. Cannot manage workspace settings or roles</td>
+              <td>Senior data engineers, senior analysts</td>
+            </tr>
+            <tr>
+              <td><strong>Contributor</strong></td>
+              <td>Create and edit items. Cannot delete workspace items owned by others</td>
+              <td>Data engineers, developers doing the build</td>
+            </tr>
+            <tr>
+              <td><strong>Viewer</strong></td>
+              <td>Read-only access to items and reports</td>
+              <td>Business users, stakeholders, UAT testers</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="code-block" style="margin-top:14px;"><span class="c-comment"># Typical assignment for DEV workspace</span>
+<span class="c-key">Admin       </span>: You + svc-fabricadmin + 1 permanent employee
+<span class="c-key">Member      </span>: Senior engineers who need full item control
+<span class="c-key">Contributor </span>: Developers doing active build work
+<span class="c-key">Viewer      </span>: Stakeholders reviewing progress
+
+<span class="c-comment"># PROD workspace — restrict heavily</span>
+<span class="c-key">Admin       </span>: svc-fabricadmin + 1 permanent employee only
+<span class="c-key">Contributor </span>: Nobody — changes come through deployment pipeline only
+<span class="c-key">Viewer      </span>: Business users who need report access</div>
+      </div>
+
+      <!-- How to create -->
+      <div class="sub-section">
+        <div class="code-label">How to Create a Workspace</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">In Fabric left nav → <strong>Workspaces</strong> → <strong>+ New workspace</strong></span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Enter the workspace name following your agreed naming convention</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Expand <strong>Advanced</strong> → assign a <strong>Licence mode</strong> — select your Fabric capacity or Trial</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Click <strong>Apply</strong> — workspace is created and you are automatically Admin</span>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <span class="step-text">Go to workspace → <strong>Manage access</strong> → add team members with appropriate roles</span>
+          </li>
+          <li>
+            <span class="step-num">6</span>
+            <span class="step-text">Repeat for TEST and PROD workspaces — same naming pattern, different role assignments</span>
+          </li>
+        </ul>
+
+        <div class="note note-green" style="margin-top:12px;">
+          <span class="note-icon">💡</span>
+          <span>Create all three workspaces (DEV / TEST / PROD) on Day 1 even if you only use DEV for weeks. Deployment pipelines require all three to exist before you can link them.</span>
+        </div>
+      </div>
+
+      <!-- Who can create workspaces -->
+      <div class="sub-section">
+        <div class="code-label">Important — Who Can Create Workspaces</div>
+        <div class="code-block"><span class="c-comment"># Default tenant setting (most companies)</span>
+Everyone in the organisation can create workspaces
+→ <span class="c-warn">This is a governance risk</span> — anyone can create WS-MyTest-Prod and cause confusion
+
+<span class="c-comment"># Recommended for enterprise</span>
+Fabric Admin portal → Tenant settings
+  → "Create workspaces" → restrict to a Security Group
+  → e.g. SG-FabricWorkspaceCreators</div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>If you are also wearing the Fabric Admin hat — check and restrict this setting on Day 1. Otherwise you will find dozens of unmanaged workspaces created by curious users within weeks.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 2 — CAPACITY MANAGEMENT
+  ═══════════════════════════════════════════════════ -->
+  <div class="section" id="s-capacity">
+    <button class="section-toggle" onclick="toggle('s-capacity')">
+      <span class="step-badge badge-cap">Week 1</span>
+      <span class="section-title">Capacity Management</span>
+      <span class="section-meta">F SKUs · CU · Throttling · Cost Control</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Capacity is what powers your Fabric workloads — compute, storage, and concurrency all come from the capacity assigned to a workspace. Understanding capacity prevents surprise throttling and runaway Azure costs.
+      </div>
+
+      <!-- What is capacity -->
+      <div class="code-label">What is a Fabric Capacity</div>
+      <div class="code-block">Fabric capacity = a pool of Capacity Units (CU) you purchase in Azure
+  → All workspaces assigned to it share this CU pool
+  → More CU = more compute power, more concurrency, larger workloads
+
+<span class="c-comment"># Think of it like this</span>
+Capacity  = the engine
+Workspace = a car using that engine
+Items     = passengers in the car</div>
+
+      <!-- SKU table -->
+      <div class="code-label" style="margin-top:16px;">Fabric SKUs — What the Client Might Have</div>
+      <table class="data-table">
+        <thead>
+          <tr><th>SKU</th><th>CU</th><th>Typical use</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><strong>Trial</strong></td><td>64 CU</td><td>Learning / POC — what you have now, expires in 60 days</td></tr>
+          <tr><td><strong>F2</strong></td><td>2 CU</td><td>Very small dev only — limited concurrency</td></tr>
+          <tr><td><strong>F4</strong></td><td>4 CU</td><td>Small dev team</td></tr>
+          <tr><td><strong>F8</strong></td><td>8 CU</td><td>Small production workload</td></tr>
+          <tr><td><strong>F16</strong></td><td>16 CU</td><td>Medium production, multiple pipelines</td></tr>
+          <tr><td><strong>F32</strong></td><td>32 CU</td><td>Larger production, Power BI premium features</td></tr>
+          <tr><td><strong>F64+</strong></td><td>64+ CU</td><td>Enterprise, high concurrency, large data volumes</td></tr>
+        </tbody>
+      </table>
+
+      <div class="note">
+        <span class="note-icon">⚠</span>
+        <span>Power BI premium features (paginated reports, AI, XMLA endpoint) require <strong>F64 or higher</strong>. If a client asks for these on F8, it will not work. Clarify early.</span>
+      </div>
+
+      <!-- Assign workspace to capacity -->
+      <div class="sub-section">
+        <div class="code-label">How to Assign a Workspace to a Capacity</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Go to the workspace → <strong>⚙ Workspace settings</strong></span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Select <strong>Licence info</strong> tab</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Under Licence mode → select <strong>Fabric capacity</strong> from the dropdown</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Pick the capacity from the list — you must be a <strong>Capacity Admin</strong> to see it</span>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <span class="step-text">Click <strong>Apply</strong> — workspace is now running on that capacity</span>
+          </li>
+        </ul>
+
+        <div class="note note-green">
+          <span class="note-icon">💡</span>
+          <span>If you cannot see any capacity in the dropdown it means you have not been added as a Capacity Admin. Ask the Azure subscription owner to go to <strong>Azure Portal → Fabric capacity resource → Capacity Admins</strong> and add your account.</span>
+        </div>
+      </div>
+
+      <!-- Throttling -->
+      <div class="sub-section">
+        <div class="code-label">Throttling — What Happens When You Run Out of CU</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          Fabric does not hard-stop when capacity is exceeded. It uses a smoothing and throttling model that catches many architects by surprise.
+        </div>
+        <div class="code-block"><span class="c-key">Normal operation   </span>: CU usage within purchased limit → runs fine
+
+<span class="c-key">Burst (short spike) </span>: CU overages smoothed across 10-minute window
+                         short spikes are absorbed automatically
+
+<span class="c-key">Sustained overage  </span>: Fabric starts throttling — jobs slow down
+                         interactive queries (reports) throttled first
+                         background jobs (pipelines) throttled next
+
+<span class="c-key">Severe overage     </span>: New job submissions rejected
+                         users see "capacity limit reached" errors</div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Throttling is silent at first — jobs just run slower. Users will complain that reports are slow before they see any error. Always monitor the Capacity Metrics app (see Monitoring section) to catch this early.</span>
+        </div>
+      </div>
+
+      <!-- DEV vs PROD capacity -->
+      <div class="sub-section">
+        <div class="code-label">DEV vs PROD — Separate Capacities or Shared?</div>
+        <div class="code-block"><span class="c-key">Option 1 — Separate capacities</span> (recommended for enterprise)
+  DEV workspace  → small F4 or F8 capacity  ← cheap, can be paused overnight
+  PROD workspace → larger F16/F32 capacity  ← always-on, right-sized for load
+  Benefit: DEV experiments cannot impact PROD performance
+
+<span class="c-key">Option 2 — Shared capacity</span> (acceptable for small teams / POC)
+  All workspaces → same capacity
+  Risk: a heavy DEV pipeline job throttles PROD reports for users</div>
+
+        <div class="note note-green">
+          <span class="note-icon">💡</span>
+          <span>For a consulting engagement starting fresh — recommend separate capacities from Day 1. It is much harder to separate them later once workloads are running. The cost difference between F4 for DEV and F16 for PROD is small compared to the risk of shared capacity.</span>
+        </div>
+      </div>
+
+      <!-- Pausing capacity -->
+      <div class="sub-section">
+        <div class="code-label">Pausing Capacity — Cost Saving for DEV</div>
+        <div class="code-block"><span class="c-comment"># Fabric capacity is billed per hour it is running in Azure</span>
+<span class="c-comment"># DEV capacity can be paused when nobody is working</span>
+
+Azure Portal → Fabric capacity resource → <span class="c-val">Pause</span>
+  → billing stops immediately
+  → workspaces assigned to it go offline
+  → Resume when team arrives next morning
+
+<span class="c-comment"># Automate pause/resume with Azure Automation or Logic App</span>
+Pause  : weekdays 8pm
+Resume : weekdays 7am
+Saving : ~50% of monthly DEV capacity cost</div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Never pause PROD capacity. If a scheduled pipeline runs while capacity is paused it will fail silently. Only pause DEV and TEST capacities outside working hours.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 3 — TENANT ADMIN SETTINGS
+  ═══════════════════════════════════════════════════ -->
+  <div class="section" id="s-tenant">
+    <button class="section-toggle" onclick="toggle('s-tenant')">
+      <span class="step-badge badge-tenant">Know It</span>
+      <span class="section-title">Tenant Admin Settings</span>
+      <span class="section-meta">Key switches · Governance · Service Principals</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        The Fabric Admin portal has 50+ tenant-level switches. One wrong toggle affects every user in the entire organisation. As an architect you need to know which settings to check on Day 1 — even if the Fabric Admin makes the actual change.
+      </div>
+
+      <div class="code-label">Where to Find Tenant Settings</div>
+      <div class="code-block"><span class="c-key">app.fabric.microsoft.com</span>
+  → Admin portal (bottom left gear icon)
+    → Tenant settings</div>
+
+      <!-- Critical settings -->
+      <div class="code-label" style="margin-top:16px;">Critical Settings — Check These on Day 1</div>
+      <table class="data-table">
+        <thead><tr><th>Setting</th><th>Default</th><th>Recommended</th><th>Why it matters</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Create workspaces</strong></td>
+            <td>Everyone</td>
+            <td>Specific security group</td>
+            <td>Prevents uncontrolled workspace sprawl across the tenant</td>
+          </tr>
+          <tr>
+            <td><strong>Publish to web</strong></td>
+            <td>Disabled</td>
+            <td>Keep disabled</td>
+            <td>Publishes reports to the public internet — almost always a security risk</td>
+          </tr>
+          <tr>
+            <td><strong>Export data</strong></td>
+            <td>Enabled</td>
+            <td>Evaluate per client</td>
+            <td>Allows users to export report data to Excel — may violate data governance policies</td>
+          </tr>
+          <tr>
+            <td><strong>Service principals can use Fabric APIs</strong></td>
+            <td>Disabled</td>
+            <td>Enable for automation</td>
+            <td>Required for CI/CD pipelines and programmatic workspace management</td>
+          </tr>
+          <tr>
+            <td><strong>Copilot and Azure OpenAI</strong></td>
+            <td>Disabled</td>
+            <td>Client decision</td>
+            <td>Data leaves the tenant boundary for AI processing — confirm with client's security team</td>
+          </tr>
+          <tr>
+            <td><strong>External sharing</strong></td>
+            <td>Enabled</td>
+            <td>Restrict for regulated industries</td>
+            <td>Allows sharing reports with users outside the organisation</td>
+          </tr>
+          <tr>
+            <td><strong>Certification</strong></td>
+            <td>Disabled</td>
+            <td>Enable, restrict who can certify</td>
+            <td>Allows marking semantic models as certified — tells users which datasets to trust</td>
+          </tr>
+          <tr>
+            <td><strong>Users can try paid Fabric features</strong></td>
+            <td>Enabled</td>
+            <td>Disable in production tenants</td>
+            <td>Allows trial capacity usage which bypasses your governed capacity setup</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Service principal setting -->
+      <div class="sub-section">
+        <div class="code-label">Enabling Service Principal Access — Steps</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          Required if you want CI/CD pipelines (Azure DevOps) to deploy Fabric items programmatically. Without this, all deployment is manual.
+        </div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Admin portal → Tenant settings → search <strong>"Service principals"</strong></span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Enable <strong>"Service principals can use Fabric APIs"</strong></span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Restrict to a specific security group rather than the whole organisation — e.g. <code>SG-FabricServicePrincipals</code></span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Add your automation service principal to that security group in Entra ID</span>
+          </li>
+        </ul>
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Enabling this for the entire organisation gives every service principal in the tenant access to Fabric APIs. Always restrict to a security group — not the whole org.</span>
+        </div>
+      </div>
+
+      <!-- Endorsement -->
+      <div class="sub-section">
+        <div class="code-label">Endorsement — Promoted vs Certified</div>
+        <div class="code-block"><span class="c-key">Promoted   </span> → any workspace member can mark an item as Promoted
+               Signals: "this is ready to use, better than the others"
+               No approval needed
+
+<span class="c-val">Certified  </span> → only designated certifiers can mark an item as Certified
+               Signals: "this is the official, governed, authoritative version"
+               Configured in Tenant settings → who can certify
+
+<span class="c-comment"># As architect — certify your Gold layer semantic models</span>
+<span class="c-comment"># Business users trust certified items over uncertified ones</span>
+<span class="c-comment"># Prevents people building reports on Silver or Bronze directly</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 4 — DEPLOYMENT PIPELINES
+  ═══════════════════════════════════════════════════ -->
+  <div class="section" id="s-deploy">
+    <button class="section-toggle" onclick="toggle('s-deploy')">
+      <span class="step-badge badge-deploy">Ongoing</span>
+      <span class="section-title">Deployment Pipelines — DEV / TEST / PROD</span>
+      <span class="section-meta">Promotion · Deployment rules · What travels and what does not</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Fabric deployment pipelines promote items from one workspace to the next in a controlled, repeatable way. Think of it as your release management tool — the equivalent of a SQL Server DACPAC or SSIS deployment package, but for the entire Fabric workspace.
+      </div>
+
+      <!-- What it is -->
+      <div class="code-label">What a Deployment Pipeline Does</div>
+      <div class="code-block"><span class="c-key">WS-Project-DEV</span>  ──promote──►  <span class="c-key">WS-Project-TEST</span>  ──promote──►  <span class="c-key">WS-Project-PROD</span>
+
+Items that travel:
+  ✅ Notebooks
+  ✅ Data pipelines
+  ✅ Semantic models
+  ✅ Reports and dashboards
+  ✅ Lakehouses (structure only — not the data)
+  ✅ Dataflows Gen2
+  ✅ Data warehouses (structure only)
+
+Items that do NOT travel:
+  ❌ Data inside lakehouses — data stays in each environment
+  ❌ Connection credentials — must be remapped via deployment rules
+  ❌ Environment settings — must be set per workspace
+  ❌ Scheduled pipeline triggers — must be re-enabled in each environment</div>
+
+      <!-- How to create -->
+      <div class="sub-section">
+        <div class="code-label">How to Create a Deployment Pipeline</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">In Fabric left nav → <strong>Deployment pipelines</strong> → <strong>New pipeline</strong></span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Name it after your project — e.g. <code>dp_finance_project</code></span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Assign <strong>Development</strong> stage → select <code>WS-Finance-DEV</code></span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Assign <strong>Test</strong> stage → select <code>WS-Finance-TEST</code></span>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <span class="step-text">Assign <strong>Production</strong> stage → select <code>WS-Finance-PROD</code></span>
+          </li>
+          <li>
+            <span class="step-num">6</span>
+            <span class="step-text">Configure <strong>deployment rules</strong> before first promotion — see below</span>
+          </li>
+        </ul>
+        <div class="note note-green">
+          <span class="note-icon">💡</span>
+          <span>All three workspaces must already exist before you can create the deployment pipeline. This is why the architect guide says to create DEV, TEST, and PROD workspaces on Day 1 — even if you only use DEV for weeks.</span>
+        </div>
+      </div>
+
+      <!-- Deployment rules -->
+      <div class="sub-section">
+        <div class="code-label">Deployment Rules — The Most Important Configuration</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          Deployment rules tell Fabric what to swap out when promoting from one stage to the next. Without rules, a pipeline promoted from DEV would still point to DEV connections and DEV lakehouses in PROD — causing data corruption.
+        </div>
+        <div class="code-block"><span class="c-comment"># Example — pipeline in DEV reads from DEV lakehouse</span>
+<span class="c-comment"># Without a deployment rule, this same connection goes to PROD</span>
+<span class="c-comment"># With a deployment rule, Fabric swaps the connection automatically</span>
+
+Deployment rule for: <span class="c-key">pl_strava_bronze_ingestion</span>
+  DEV  data source → <span class="c-warn">lh_bronze (DEV workspace)</span>
+  PROD data source → <span class="c-val">lh_bronze (PROD workspace)</span>
+
+Deployment rule for: <span class="c-key">semantic model connection</span>
+  DEV  → points to DEV lakehouse Gold tables
+  PROD → points to PROD lakehouse Gold tables</div>
+
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">In the deployment pipeline → click the <strong>⚙ Rules</strong> icon between stages</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">For each item that has a connection — add a rule mapping DEV source to PROD source</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Also set parameter rules — if notebooks use parameter cells, override values per environment</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Test the rules by promoting to TEST first — verify it reads from TEST connections not DEV</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- How to promote -->
+      <div class="sub-section">
+        <div class="code-label">How to Promote — DEV to TEST to PROD</div>
+        <div class="code-block"><span class="c-comment"># Promote DEV → TEST</span>
+Deployment pipeline → DEV stage
+  → Select items to promote (all or specific ones)
+  → Click <span class="c-val">Deploy to Test</span>
+  → Fabric applies deployment rules automatically
+  → Runs the promotion
+  → Items appear in TEST workspace
+
+<span class="c-comment"># Promote TEST → PROD</span>
+Deployment pipeline → TEST stage
+  → Confirm UAT sign-off is done
+  → Click <span class="c-val">Deploy to Production</span>
+  → <span class="c-warn">This is live — no undo</span>
+  → Monitor the first pipeline run in PROD immediately after</div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>The deployment pipeline does not ask "are you sure?". Once you click Deploy to Production the items are live immediately. Always confirm with your checklist before clicking — see fabric_standards_guide.html Promotion Rules section.</span>
+        </div>
+      </div>
+
+      <!-- Compare vs DEV -->
+      <div class="sub-section">
+        <div class="code-label">Compare Feature — Spot Differences Before Promoting</div>
+        <div class="code-block"><span class="c-comment"># The deployment pipeline shows a diff between stages</span>
+<span class="c-comment"># Green items  = exist in source, not yet in target → will be added</span>
+<span class="c-comment"># Orange items = exist in both but source is newer  → will be updated</span>
+<span class="c-comment"># Grey items   = identical in both                  → no change</span>
+
+Always review the compare view before promoting
+  → Spot any unexpected changes
+  → Confirm only the items you intended to promote are highlighted</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 5 — MONITORING
+  ═══════════════════════════════════════════════════ -->
+  <div class="section" id="s-monitor">
+    <button class="section-toggle" onclick="toggle('s-monitor')">
+      <span class="step-badge badge-monitor">Ongoing</span>
+      <span class="section-title">Monitoring &amp; Observability</span>
+      <span class="section-meta">Capacity Metrics · Monitor Hub · Activity Log · Alerts</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Monitoring in Fabric happens at three levels — the control table you build (pipeline health), the Fabric Monitor Hub (item runs), and the Capacity Metrics app (infrastructure health). As architect you are responsible for all three being in place and the team knowing how to use them.
+      </div>
+
+      <!-- Three levels -->
+      <div class="code-label">Three Levels of Monitoring</div>
+      <div class="code-block"><span class="c-key">Level 1 — Your control table</span>    (dbo.pipeline_control)
+  What    : Did each pipeline entity run, succeed, or fail?
+  Who     : Data engineers check daily
+  How     : SELECT * FROM pipeline_control ORDER BY updated_at DESC
+  When    : Every morning before business users arrive
+
+<span class="c-key">Level 2 — Fabric Monitor Hub</span>       (built into Fabric UI)
+  What    : All item runs across the workspace — pipelines, notebooks, dataflows
+  Who     : Architect and senior engineers
+  How     : Left nav → Monitor
+  When    : When investigating a failure flagged in Level 1
+
+<span class="c-key">Level 3 — Capacity Metrics app</span>     (separate app, install from AppSource)
+  What    : CU consumption over time — throttling, overages, by item
+  Who     : Architect and Fabric Admin
+  How     : Install app → connect to your capacity
+  When    : Weekly health check, and when users report slowness</div>
+
+      <!-- Monitor hub -->
+      <div class="sub-section">
+        <div class="code-label">Fabric Monitor Hub — What to Look For</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Left nav → <strong>Monitor</strong> — shows all recent activity runs across the workspace</span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Filter by <strong>Status: Failed</strong> — your first filter every morning</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">Click a failed run → view the <strong>error message</strong> and which activity failed</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Check <strong>duration</strong> — a pipeline that normally takes 5 minutes suddenly taking 45 minutes is a warning sign even if it eventually succeeds</span>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <span class="step-text">Use <strong>scheduled runs</strong> filter to verify all overnight jobs ran as expected</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Capacity metrics -->
+      <div class="sub-section">
+        <div class="code-label">Capacity Metrics App — Install and Use</div>
+        <div class="code-block"><span class="c-comment"># Install once per tenant — free from Microsoft AppSource</span>
+AppSource → search "Microsoft Fabric Capacity Metrics" → Install
+  → Open the app → connect to your capacity
+  → Select your capacity from the dropdown
+
+<span class="c-comment"># Key views to understand</span>
+<span class="c-key">Capacity utilisation</span> : CU % over time — look for sustained spikes above 100%
+<span class="c-key">Top items by CU</span>     : Which notebooks or pipelines are consuming the most
+<span class="c-key">Throttling events</span>   : When Fabric had to slow things down — correlate with user complaints
+<span class="c-key">By workspace</span>        : Which workspace is consuming what share of the total capacity</div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Install the Capacity Metrics app on your first week — not after users start complaining. You need a baseline of normal CU usage to recognise when something is wrong. Without a baseline, every spike looks alarming and every normal day looks fine.</span>
+        </div>
+      </div>
+
+      <!-- Activity log -->
+      <div class="sub-section">
+        <div class="code-label">Activity Log — Audit and Compliance</div>
+        <div class="code-block"><span class="c-comment"># Fabric Admin portal → Activity log</span>
+<span class="c-comment"># Records every action taken by every user in the tenant</span>
+
+What it captures:
+  <span class="c-val">ViewReport</span>         → who viewed which report, when
+  <span class="c-val">ExportArtifact</span>     → who exported data, from where
+  <span class="c-val">CreateWorkspace</span>    → who created a workspace
+  <span class="c-val">DeleteArtifact</span>     → who deleted an item
+  <span class="c-val">ModifyDataset</span>      → who changed a semantic model
+
+<span class="c-comment"># Useful for</span>
+  → Compliance audits — prove who accessed what data
+  → Security investigations — track unusual activity
+  → Usage analysis — which reports are actually being used
+  → Governance — catch ungoverned workspaces being created</div>
+
+        <div class="note note-green">
+          <span class="note-icon">💡</span>
+          <span>The Activity Log only retains 30 days of history in the Fabric portal. For longer retention — export to a storage account or pipe into a Log Analytics workspace. Set this up early if the client has compliance requirements.</span>
+        </div>
+      </div>
+
+      <!-- Alerting -->
+      <div class="sub-section">
+        <div class="code-label">Setting Up Alerts — Pipeline Failures and Capacity</div>
+        <div class="code-block"><span class="c-comment"># Pipeline failure alerts — set inside each pipeline</span>
+Open pipeline → Settings → Notifications
+  → Send email on: Failure, Completion, or Both
+  → Add email addresses of the on-call engineer and architect
+
+<span class="c-comment"># Capacity throttling alerts — Azure Portal</span>
+Azure Portal → Fabric capacity resource → Alerts → New alert rule
+  → Signal: "CU percentage" metric
+  → Condition: greater than 80% for 10 minutes
+  → Action group: send email or Teams notification
+  → This fires before throttling starts — gives you time to react</div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Do not set the capacity alert at 100% — by then Fabric is already throttling. Set it at 75–80% so you get advance warning and can investigate before users are affected.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════
+       SECTION 6 — GIT INTEGRATION
+  ═══════════════════════════════════════════════════ -->
+  <div class="section" id="s-git">
+    <button class="section-toggle" onclick="toggle('s-git')">
+      <span class="step-badge badge-git">Project Setup</span>
+      <span class="section-title">Git Integration &amp; ALM</span>
+      <span class="section-meta">Azure DevOps · GitHub · Branching · What syncs and what does not</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Git integration connects a Fabric workspace to a code repository so every item change is version-controlled. This is your safety net — if someone deletes a notebook or breaks a pipeline, you can restore from Git. It also enables team collaboration with proper branching and pull requests.
+      </div>
+
+      <!-- Supported repos -->
+      <div class="code-label">Supported Repositories</div>
+      <div class="code-block"><span class="c-val">Azure DevOps</span>  → recommended for most enterprise clients already on Microsoft stack
+<span class="c-val">GitHub</span>        → recommended if client already uses GitHub for other projects
+
+Both support the same Fabric integration features.
+Choose based on what the client already has — do not introduce a new tool.</div>
+
+      <!-- How to connect -->
+      <div class="sub-section">
+        <div class="code-label">How to Connect a Workspace to Git</div>
+        <ul class="steps">
+          <li>
+            <span class="step-num">1</span>
+            <span class="step-text">Go to workspace → <strong>⚙ Workspace settings</strong> → <strong>Git integration</strong></span>
+          </li>
+          <li>
+            <span class="step-num">2</span>
+            <span class="step-text">Select <strong>Azure DevOps</strong> or <strong>GitHub</strong> as the provider</span>
+          </li>
+          <li>
+            <span class="step-num">3</span>
+            <span class="step-text">For Azure DevOps — select Organisation, Project, Repository, and Branch</span>
+          </li>
+          <li>
+            <span class="step-num">4</span>
+            <span class="step-text">Set the <strong>Git folder</strong> — recommended: use a subfolder per workspace e.g. <code>/dev</code> or <code>/workspaces/finance-dev</code></span>
+          </li>
+          <li>
+            <span class="step-num">5</span>
+            <span class="step-text">Click <strong>Connect and sync</strong> — Fabric syncs existing items to the repo</span>
+          </li>
+          <li>
+            <span class="step-num">6</span>
+            <span class="step-text">Connect DEV workspace to the <code>dev</code> branch — not main</span>
+          </li>
+        </ul>
+        <div class="note note-green">
+          <span class="note-icon">💡</span>
+          <span>Only connect the DEV workspace to Git initially. TEST and PROD receive items via the deployment pipeline — not directly from Git. This keeps the promotion path clean and auditable.</span>
+        </div>
+      </div>
+
+      <!-- What syncs -->
+      <div class="sub-section">
+        <div class="code-label">What Syncs to Git and What Does Not</div>
+        <div class="code-block"><span class="c-val">Syncs to Git</span>
+  ✅ Notebooks         → stored as .ipynb JSON
+  ✅ Data pipelines    → stored as JSON definition
+  ✅ Semantic models   → stored as PBIR format (folder structure)
+  ✅ Reports           → stored as JSON definition
+  ✅ Dataflows Gen2    → stored as JSON definition
+  ✅ Lakehouses        → metadata only, not data
+
+<span class="c-warn">Does NOT sync</span>
+  ❌ Data inside lakehouses and warehouses
+  ❌ Connection credentials
+  ❌ Workspace settings and role assignments
+  ❌ Scheduled trigger configurations
+  ❌ Capacity assignments
+  ❌ Environment variable values (names sync, values do not)</div>
+      </div>
+
+      <!-- Branching strategy -->
+      <div class="sub-section">
+        <div class="code-label">Branching Strategy for Data Engineering Teams</div>
+        <div class="code-block"><span class="c-val">main</span>          ← protected branch → maps to PROD via deployment pipeline
+<span class="c-warn">release</span>       ← protected branch → maps to TEST via deployment pipeline
+<span class="c-key">dev</span>           ← integration branch → connected to DEV workspace
+feature/*     ← engineer work branches → merged to dev via PR
+
+<span class="c-comment"># How an engineer works day to day</span>
+1. Create branch: git checkout -b feature/nb_strava_silver
+2. Make changes in DEV workspace — Fabric tracks them
+3. Commit from Fabric UI: Source control → Commit
+4. Raise PR: feature/nb_strava_silver → dev
+5. Architect reviews and approves
+6. Merge → DEV workspace updates automatically</div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Engineers commit from the Fabric UI Source control panel — not from a local terminal. The Fabric UI tracks which items have uncommitted changes and shows them as pending. Make sure the team knows to commit regularly — not just at the end of a sprint.</span>
+        </div>
+      </div>
+
+      <!-- Important quirks -->
+      <div class="sub-section">
+        <div class="code-label">Fabric Git Quirks — Know These Before the Team Hits Them</div>
+        <div class="code-block"><span class="c-warn">1. Items serialise as JSON — not clean code</span>
+   Notebook diffs in GitHub show JSON changes, not clean Python diffs
+   Always review PRs by opening the item in Fabric — not reading raw JSON
+
+<span class="c-warn">2. Concurrent edits cause conflicts</span>
+   Two engineers editing the same notebook simultaneously causes a Git conflict
+   Rule: one engineer owns one notebook — no shared editing without coordination
+
+<span class="c-warn">3. Unsaved workspace changes block sync</span>
+   If an engineer has uncommitted changes, syncing from Git is blocked
+   They must commit or discard their changes before the workspace can sync
+
+<span class="c-warn">4. Fabric deployment pipeline ≠ Azure DevOps pipeline</span>
+   These are two completely separate things with similar names
+   Fabric deployment pipeline: promotes items between workspaces (DEV → TEST → PROD)
+   Azure DevOps pipeline: CI/CD automation — runs scripts, tests, builds
+   Always clarify which one you mean in team conversations
+
+<span class="c-warn">5. Credentials and connections do not travel via Git</span>
+   Even if a pipeline is committed to Git, its connection references
+   must be manually remapped when syncing to a new workspace
+   Deployment rules handle this for deployment pipelines but not for Git sync</div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    Fabric Architect Working Guide · May 2026
+    <div class="version-tag">Complete — Workspace · Capacity · Tenant · Deployment · Monitoring · Git</div>
+  </div>
+
+</div>
+
+<script>
+  function toggle(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+</script>
+</body>
+</html>

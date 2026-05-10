@@ -1,0 +1,1237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fabric Architect — Consultant Runbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2435;
+    --border: #2a3050;
+    --border2: #3a4568;
+    --text: #e8eaf0;
+    --text2: #8b93b0;
+    --text3: #4a5270;
+    --blue: #4d7cfe;
+    --blue-dim: #1a2d6b;
+    --green: #3dd68c;
+    --green-dim: #0d3d25;
+    --amber: #f5a623;
+    --amber-dim: #3d2800;
+    --amber-light: rgba(245,166,35,0.08);
+    --coral: #ff6b6b;
+    --coral-dim: rgba(255,107,107,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --teal: #2dd4bf;
+    --teal-dim: rgba(45,212,191,0.12);
+    --pink: #f472b6;
+    --pink-dim: rgba(244,114,182,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1rem 5rem;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    border-left: 3px solid var(--purple);
+    padding-left: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--purple);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .header-sub { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* Intro band */
+  .intro-band {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin: 1rem 0 0.75rem;
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+    line-height: 1.7;
+  }
+  .intro-band span { color: var(--purple); }
+
+  /* Companion docs */
+  .companion-docs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.75rem;
+  }
+  .companion-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 4px 12px;
+  }
+  .companion-tag span { color: var(--blue); }
+
+  /* Phase flow */
+  .phase-flow {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+    margin-bottom: 1.75rem;
+    padding-bottom: 4px;
+  }
+  .phase-pip {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    flex-shrink: 0;
+  }
+  .phase-pip-dot {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--border2);
+    background: var(--surface);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .phase-pip-dot:hover { border-color: var(--purple); color: var(--purple); }
+  .phase-pip-label {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+    text-align: center;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+  .phase-connector {
+    width: 32px; height: 1px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin-bottom: 18px;
+  }
+
+  /* Section wrapper */
+  .section {
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .section-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .section-toggle:hover { background: var(--surface2); }
+
+  .phase-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 3px 10px;
+    border-radius: 99px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .p1 { background: rgba(61,214,140,0.12);  color: var(--green);  border: 1px solid rgba(61,214,140,0.25); }
+  .p2 { background: rgba(77,124,254,0.12);  color: var(--blue);   border: 1px solid rgba(77,124,254,0.25); }
+  .p3 { background: rgba(245,166,35,0.12);  color: var(--amber);  border: 1px solid rgba(245,166,35,0.25); }
+  .p4 { background: rgba(167,139,250,0.12); color: var(--purple); border: 1px solid rgba(167,139,250,0.25); }
+  .p5 { background: rgba(45,212,191,0.12);  color: var(--teal);   border: 1px solid rgba(45,212,191,0.25); }
+  .p6 { background: rgba(255,107,107,0.12); color: var(--coral);  border: 1px solid rgba(255,107,107,0.25); }
+  .p7 { background: rgba(244,114,182,0.12); color: var(--pink);   border: 1px solid rgba(244,114,182,0.25); }
+
+  .section-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .section-meta  { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  .chevron {
+    width: 16px; height: 16px;
+    color: var(--text3);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .section.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0 20px 24px;
+    border-top: 1px solid var(--border);
+  }
+  .section.open .section-body { display: block; }
+
+  .section-desc {
+    font-size: 12.5px;
+    color: var(--text2);
+    padding: 14px 0 16px;
+    line-height: 1.7;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+  }
+
+  /* Code block */
+  .code-block {
+    background: #0a0d14;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    color: #c8cde0;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .code-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .c-key     { color: var(--blue); }
+  .c-val     { color: var(--green); }
+  .c-warn    { color: var(--amber); }
+  .c-bad     { color: var(--coral); }
+  .c-comment { color: #4a5270; font-style: italic; }
+  .c-purple  { color: var(--purple); }
+  .c-teal    { color: var(--teal); }
+  .c-pink    { color: var(--pink); }
+
+  /* Q&A blocks */
+  .qa-block {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px 16px;
+    margin-top: 4px;
+  }
+  .qa-block + .qa-block { margin-top: 8px; }
+  .qa-category {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 10px;
+  }
+  .qa-item {
+    display: flex;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12.5px;
+  }
+  .qa-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .qa-q { color: var(--text); font-weight: 500; flex: 1; line-height: 1.5; }
+  .qa-why { color: var(--text3); font-size: 11px; font-family: var(--mono); flex: 1; line-height: 1.5; }
+
+  /* Steps */
+  .steps { list-style: none; margin-top: 4px; }
+  .steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { flex: 1; color: var(--text2); line-height: 1.5; }
+  .step-text strong { color: var(--text); font-weight: 500; }
+  .step-text code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--blue);
+  }
+
+  /* Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-top: 4px;
+  }
+  .data-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--surface2);
+  }
+  .data-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td strong { color: var(--text); font-weight: 500; }
+  .data-table td code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--blue);
+  }
+
+  /* Note */
+  .note {
+    display: flex;
+    gap: 10px;
+    background: var(--amber-light);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .note-green  { background: rgba(61,214,140,0.06); border-color: rgba(61,214,140,0.2); }
+  .note-blue   { background: rgba(77,124,254,0.06); border-color: rgba(77,124,254,0.2); }
+  .note-purple { background: rgba(167,139,250,0.06); border-color: rgba(167,139,250,0.2); }
+
+  /* Ref tag */
+  .ref-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--blue);
+    background: var(--blue-dim);
+    border: 1px solid rgba(77,124,254,0.2);
+    border-radius: 4px;
+    padding: 2px 8px;
+    margin-top: 10px;
+    text-decoration: none;
+  }
+
+  /* Sub-divider */
+  .sub-section {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  /* Scenario split */
+  .scenario-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 4px;
+  }
+  @media (max-width: 600px) { .scenario-grid { grid-template-columns: 1fr; } }
+  .scenario-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+  }
+  .scenario-card-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .greenfield-title { color: var(--green); }
+  .migration-title  { color: var(--amber); }
+  .scenario-card ul {
+    list-style: none;
+    font-size: 12px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+  .scenario-card ul li::before {
+    content: "→ ";
+    color: var(--text3);
+  }
+
+  /* Exit checklist */
+  .exit-list { list-style: none; margin-top: 4px; }
+  .exit-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .exit-list li:last-child { border-bottom: none; }
+  .exit-icon { flex-shrink: 0; font-size: 13px; margin-top: 1px; }
+
+  /* Footer */
+  .footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .version-tag {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 4px 14px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">Microsoft Fabric</div>
+    <h1>Architect Consultant Runbook</h1>
+    <div class="header-sub">A phased guide for leading a Fabric engagement from first conversation to handover — greenfield and migration scenarios included.</div>
+  </div>
+
+  <div class="intro-band">
+    📘 How to use this: Work through phases sequentially. Each phase has an exit checklist — do not move to the next phase until it is complete. Some phases overlap in real engagements — that is expected. Use the companion documents for technical detail.
+  </div>
+
+  <div class="companion-docs">
+    <div class="companion-tag">📎 <span>fabric_admin_infra_guide.html</span> — gateway, connections, Key Vault</div>
+    <div class="companion-tag">📎 <span>fabric_architect_guide.html</span> — workspaces, capacity, monitoring</div>
+    <div class="companion-tag">📎 <span>fabric_standards_guide.html</span> — naming, medallion, code, git</div>
+  </div>
+
+  <!-- Phase flow diagram -->
+  <div class="phase-flow">
+    <div class="phase-pip"><div class="phase-pip-dot">1</div><div class="phase-pip-label">DISCOVER</div></div>
+    <div class="phase-connector"></div>
+    <div class="phase-pip"><div class="phase-pip-dot">2</div><div class="phase-pip-label">ALIGN</div></div>
+    <div class="phase-connector"></div>
+    <div class="phase-pip"><div class="phase-pip-dot">3</div><div class="phase-pip-label">ESTABLISH</div></div>
+    <div class="phase-connector"></div>
+    <div class="phase-pip"><div class="phase-pip-dot">4</div><div class="phase-pip-label">BUILD</div></div>
+    <div class="phase-connector"></div>
+    <div class="phase-pip"><div class="phase-pip-dot">5</div><div class="phase-pip-label">VALIDATE</div></div>
+    <div class="phase-connector"></div>
+    <div class="phase-pip"><div class="phase-pip-dot">6</div><div class="phase-pip-label">DELIVER</div></div>
+    <div class="phase-connector"></div>
+    <div class="phase-pip"><div class="phase-pip-dot">7</div><div class="phase-pip-label">SUSTAIN</div></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 1 — DISCOVER
+  ══════════════════════════════════════════ -->
+  <div class="section" id="s-discover">
+    <button class="section-toggle" onclick="toggle('s-discover')">
+      <span class="phase-badge p1">Phase 1</span>
+      <span class="section-title">Discover</span>
+      <span class="section-meta">Before touching any technology</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        You cannot architect what you do not understand. Before opening Fabric, before drawing a diagram, before writing a single line — you need to understand the project, the team, the data, the politics, and the deadline. This phase is entirely conversations and notes.
+      </div>
+
+      <!-- Project questions -->
+      <div class="code-label">Project and Delivery Questions</div>
+      <div class="qa-block">
+        <div class="qa-category">Project context</div>
+        <div class="qa-item"><div class="qa-q">What is the project deadline and is it fixed or flexible?</div><div class="qa-why">Determines how aggressive the build plan needs to be</div></div>
+        <div class="qa-item"><div class="qa-q">What does success look like at the end of the engagement?</div><div class="qa-why">Aligns your definition of done with the client's</div></div>
+        <div class="qa-item"><div class="qa-q">Is there a project manager or are you also managing delivery?</div><div class="qa-why">Clarifies whether you own the plan or just the architecture</div></div>
+        <div class="qa-item"><div class="qa-q">What delivery methodology does the client use — Agile, Waterfall, or hybrid?</div><div class="qa-why">Determines how you structure the build phase</div></div>
+        <div class="qa-item"><div class="qa-q">Are there any regulatory or compliance requirements?</div><div class="qa-why">GDPR, HIPAA, SOC2 all affect architecture decisions early</div></div>
+        <div class="qa-item"><div class="qa-q">What is the budget for Azure infrastructure?</div><div class="qa-why">Directly determines which capacity SKU is realistic</div></div>
+      </div>
+
+      <!-- Team questions -->
+      <div class="qa-block" style="margin-top:8px;">
+        <div class="qa-category">Team structure</div>
+        <div class="qa-item"><div class="qa-q">Who is on the data team — names, roles, and experience levels?</div><div class="qa-why">You need to know who can do what before assigning work</div></div>
+        <div class="qa-item"><div class="qa-q">What is the team's experience with Microsoft Fabric and Azure?</div><div class="qa-why">Determines how much hand-holding vs independence you plan for</div></div>
+        <div class="qa-item"><div class="qa-q">Are team members permanent employees or contractors?</div><div class="qa-why">Contractors may leave — permanent staff need more knowledge transfer</div></div>
+        <div class="qa-item"><div class="qa-q">Who will own the platform after you leave?</div><div class="qa-why">That person needs to be shadowing you from Week 1, not Week 20</div></div>
+        <div class="qa-item"><div class="qa-q">Who makes technical decisions — is it you alone or committee?</div><div class="qa-why">Committees slow everything down — understand the decision chain early</div></div>
+        <div class="qa-item"><div class="qa-q">Is there an existing DBA, data engineer, or BI developer on the team?</div><div class="qa-why">Existing skills shape how you divide work across the team</div></div>
+      </div>
+
+      <!-- Stakeholder questions -->
+      <div class="qa-block" style="margin-top:8px;">
+        <div class="qa-category">Stakeholders</div>
+        <div class="qa-item"><div class="qa-q">Who is the business sponsor — the person who owns the budget?</div><div class="qa-why">This person's priorities override everything else in the project</div></div>
+        <div class="qa-item"><div class="qa-q">Who are the end users of the reports and dashboards?</div><div class="qa-why">Their workflows determine the Gold layer and Power BI design</div></div>
+        <div class="qa-item"><div class="qa-q">Who signs off on requirements and UAT?</div><div class="qa-why">No surprises at go-live — know the approver from day one</div></div>
+        <div class="qa-item"><div class="qa-q">Is there a steering committee or weekly status meeting?</div><div class="qa-why">Understand where you need to report and at what cadence</div></div>
+      </div>
+
+      <!-- Greenfield vs migration -->
+      <div class="sub-section">
+        <div class="code-label">Greenfield vs Migration — Assessment</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          Ask these questions to quickly establish which scenario you are in. Most engagements are not purely one or the other.
+        </div>
+        <div class="qa-block">
+          <div class="qa-category">Scenario assessment</div>
+          <div class="qa-item"><div class="qa-q">Is there an existing data platform — SSIS, ADF, Databricks, Synapse, Power BI?</div><div class="qa-why">If yes, migration. If no, greenfield</div></div>
+          <div class="qa-item"><div class="qa-q">If existing — what is working well that must be preserved?</div><div class="qa-why">Never migrate away from something that works without a good reason</div></div>
+          <div class="qa-item"><div class="qa-q">If existing — what is broken or painful that motivated this project?</div><div class="qa-why">The pain point is the real project goal</div></div>
+          <div class="qa-item"><div class="qa-q">Is there a parallel run requirement — old and new running simultaneously?</div><div class="qa-why">Parallel runs double the work — understand this expectation early</div></div>
+          <div class="qa-item"><div class="qa-q">Is the migration big bang or phased by source system?</div><div class="qa-why">Big bang is high risk — phased is safer but takes longer</div></div>
+          <div class="qa-item"><div class="qa-q">What is the rollback plan if the new platform fails?</div><div class="qa-why">If there is no rollback plan, there is no go-live approval</div></div>
+        </div>
+      </div>
+
+      <!-- Data landscape -->
+      <div class="sub-section">
+        <div class="code-label">Data Landscape Questions</div>
+        <div class="qa-block">
+          <div class="qa-category">Sources and volumes</div>
+          <div class="qa-item"><div class="qa-q">What are all the source systems in scope?</div><div class="qa-why">Drives gateway vs cloud connection decisions</div></div>
+          <div class="qa-item"><div class="qa-q">What is the approximate data volume — GB, TB?</div><div class="qa-why">Determines capacity SKU and partitioning strategy</div></div>
+          <div class="qa-item"><div class="qa-q">What is the required refresh frequency — real-time, hourly, daily?</div><div class="qa-why">Real-time requires Eventstream, not batch pipelines</div></div>
+          <div class="qa-item"><div class="qa-q">Are there any data quality issues in the source systems?</div><div class="qa-why">Silver layer complexity is proportional to source data quality</div></div>
+          <div class="qa-item"><div class="qa-q">Who owns each source system — internal team or external vendor?</div><div class="qa-why">External vendors may have API limits or access restrictions</div></div>
+          <div class="qa-item"><div class="qa-q">Are there any PII or sensitive data fields in scope?</div><div class="qa-why">Determines row-level security, masking, and Purview requirements</div></div>
+        </div>
+      </div>
+
+      <!-- Exit checklist -->
+      <div class="sub-section">
+        <div class="code-label">Phase 1 Exit — You Are Ready for Phase 2 When</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">✅</span>You know the deadline and whether it is fixed</li>
+          <li><span class="exit-icon">✅</span>You have met every team member and know their skill level</li>
+          <li><span class="exit-icon">✅</span>You know who the business sponsor and UAT approver are</li>
+          <li><span class="exit-icon">✅</span>You have determined greenfield vs migration (or mix)</li>
+          <li><span class="exit-icon">✅</span>You know all source systems and rough data volumes</li>
+          <li><span class="exit-icon">✅</span>You have identified any compliance or PII requirements</li>
+          <li><span class="exit-icon">✅</span>You have identified who will own the platform after you leave</li>
+        </ul>
+        <div class="note note-purple">
+          <span class="note-icon">💡</span>
+          <span>Discovery rarely takes one meeting. Budget at least one week of conversations before moving to Phase 2. Rushing discovery is the single biggest cause of rework later.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 2 — ALIGN
+  ══════════════════════════════════════════ -->
+  <div class="section" id="s-align">
+    <button class="section-toggle" onclick="toggle('s-align')">
+      <span class="phase-badge p2">Phase 2</span>
+      <span class="section-title">Align</span>
+      <span class="section-meta">Architecture approach · Standards · Sign-off</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        With discovery complete you now make the key architectural decisions and get everyone pointing in the same direction before a single line of code is written. This phase ends with a signed-off architecture diagram and agreed team standards.
+      </div>
+
+      <!-- Architecture decisions -->
+      <div class="code-label">Key Architecture Decisions to Make</div>
+      <div class="code-block"><span class="c-key">1. Greenfield or Migration?</span>
+   Greenfield  → start fresh, design for the future
+   Migration   → understand what must be preserved, plan phased cutover
+
+<span class="c-key">2. Which Fabric workloads are in scope?</span>
+   Data Engineering  → Lakehouse, Spark, Notebooks
+   Data Warehouse    → SQL, dimensional model
+   Data Factory      → Pipelines, Dataflows
+   Power BI          → Semantic models, reports
+   Real-Time         → Eventstream, KQL — only if near real-time needed
+
+<span class="c-key">3. Medallion architecture layers needed?</span>
+   All three (Bronze/Silver/Gold)  → standard, recommended
+   Bronze + Gold only              → acceptable for small/simple projects
+
+<span class="c-key">4. Gold layer — Lakehouse or Data Warehouse?</span>
+   Lakehouse   → Delta tables, flexible schema, large volumes
+   Warehouse   → T-SQL, dimensional model, Power BI DirectQuery
+
+<span class="c-key">5. Power BI connectivity mode?</span>
+   Direct Lake    → fastest, reads Delta directly, needs F64+ for full features
+   DirectQuery    → real-time but slower, any SKU
+   Import         → fastest for reports, stale by refresh schedule
+
+<span class="c-key">6. On-premises sources present?</span>
+   Yes → gateway required → involve Infra team now
+   No  → cloud connections only → Fabric Admin handles alone</div>
+
+      <!-- Greenfield vs migration paths -->
+      <div class="sub-section">
+        <div class="code-label">Scenario-Specific Approach</div>
+        <div class="scenario-grid">
+          <div class="scenario-card">
+            <div class="scenario-card-title greenfield-title">🌱 Greenfield</div>
+            <ul>
+              <li>Design the medallion architecture from scratch</li>
+              <li>Define source system connections</li>
+              <li>Design Bronze ingestion pattern per source</li>
+              <li>Define Silver conformed layer schema</li>
+              <li>Define Gold star schema for reporting</li>
+              <li>Plan capacity sizing based on expected volume</li>
+              <li>No legacy constraints — design it right</li>
+            </ul>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-card-title migration-title">🔄 Migration</div>
+            <ul>
+              <li>Audit the existing platform thoroughly first</li>
+              <li>Map existing jobs/packages to Fabric equivalents</li>
+              <li>Identify what can be automated vs manual rebuild</li>
+              <li>Plan phased migration by source system</li>
+              <li>Define parallel run period and validation approach</li>
+              <li>Plan the cutover and rollback strategy</li>
+              <li>Carry forward what works, fix what does not</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Migration mapping -->
+      <div class="sub-section">
+        <div class="code-label">Migration — Technology Mapping</div>
+        <table class="data-table">
+          <thead><tr><th>Legacy</th><th>Fabric Equivalent</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td><strong>SSIS Package</strong></td><td>Notebook or Pipeline</td><td>Complex transforms → Notebook. Simple moves → Pipeline Copy Activity</td></tr>
+            <tr><td><strong>SSIS Control Flow</strong></td><td>Data Factory Pipeline</td><td>Direct equivalent — activities, conditions, loops</td></tr>
+            <tr><td><strong>ADF Pipeline</strong></td><td>Fabric Pipeline</td><td>Near identical — most migrate with minor changes</td></tr>
+            <tr><td><strong>ADF Linked Service</strong></td><td>Fabric Connection</td><td>Settings → Manage connections and gateways</td></tr>
+            <tr><td><strong>ADLS Gen2</strong></td><td>OneLake via Shortcut</td><td>Shortcut to existing ADLS — no data movement needed</td></tr>
+            <tr><td><strong>Azure Synapse DW</strong></td><td>Fabric Data Warehouse</td><td>T-SQL compatible — most queries migrate directly</td></tr>
+            <tr><td><strong>Databricks Notebook</strong></td><td>Fabric Notebook (Spark)</td><td>PySpark code largely compatible — library differences</td></tr>
+            <tr><td><strong>Power BI Dataset</strong></td><td>Fabric Semantic Model</td><td>Direct migration — use XMLA endpoint or export/import</td></tr>
+            <tr><td><strong>SQL Agent Job</strong></td><td>Fabric Pipeline Schedule</td><td>Schedule attached directly to pipeline in Fabric</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Team alignment -->
+      <div class="sub-section">
+        <div class="code-label">Team Alignment — Present the Standards</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          Call a team kickoff meeting. Present the standards guide. Get verbal agreement before anyone writes code.
+        </div>
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-text">Present <strong>fabric_standards_guide.html</strong> to the full data team — walk through each section</span></li>
+          <li><span class="step-num">2</span><span class="step-text">Get explicit agreement on <strong>naming conventions</strong> — no silent objections allowed</span></li>
+          <li><span class="step-num">3</span><span class="step-text">Get explicit agreement on <strong>workspace structure</strong> — DEV/TEST/PROD layout</span></li>
+          <li><span class="step-num">4</span><span class="step-text">Get explicit agreement on <strong>medallion layers</strong> — no skipping Bronze</span></li>
+          <li><span class="step-num">5</span><span class="step-text">Note any client-specific adjustments — update the standards doc before the meeting ends</span></li>
+          <li><span class="step-num">6</span><span class="step-text">Present the <strong>architecture diagram</strong> — show data flow from source to report</span></li>
+          <li><span class="step-num">7</span><span class="step-text">Get the business sponsor to sign off on the architecture approach</span></li>
+        </ul>
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>A standard that is not agreed in a meeting does not exist. If someone disagrees with a standard later and it was never discussed, the debate starts from scratch. Document every agreement and who was in the room.</span>
+        </div>
+      </div>
+
+      <!-- Exit checklist -->
+      <div class="sub-section">
+        <div class="code-label">Phase 2 Exit — You Are Ready for Phase 3 When</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">✅</span>Architecture diagram drawn and shared with team</li>
+          <li><span class="exit-icon">✅</span>Greenfield vs migration approach decided and documented</li>
+          <li><span class="exit-icon">✅</span>Which Fabric workloads are in scope — agreed</li>
+          <li><span class="exit-icon">✅</span>Medallion layer design agreed</li>
+          <li><span class="exit-icon">✅</span>Team standards presented and agreed in a meeting</li>
+          <li><span class="exit-icon">✅</span>Business sponsor sign-off on the architecture approach</li>
+          <li><span class="exit-icon">✅</span>For migration — legacy platform audit complete and mapping done</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 3 — ESTABLISH
+  ══════════════════════════════════════════ -->
+  <div class="section" id="s-establish">
+    <button class="section-toggle" onclick="toggle('s-establish')">
+      <span class="phase-badge p3">Phase 3</span>
+      <span class="section-title">Establish</span>
+      <span class="section-meta">Environment · Access · Connections · Team onboarding</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Set up the environment correctly so the team can build without blockers. This phase runs in parallel with Phase 2 — you are setting up the environment while aligning the team on standards. Do not wait for Phase 2 to be fully complete to start Phase 3.
+      </div>
+
+      <div class="code-label">Establish Checklist — In Order</div>
+      <ul class="steps">
+        <li>
+          <span class="step-num">1</span>
+          <span class="step-text">Hand <strong>fabric_admin_infra_guide.html</strong> to the relevant teams — Entra Admin, Infra, M365 Admin. Chase them daily until done.</span>
+        </li>
+        <li>
+          <span class="step-num">2</span>
+          <span class="step-text">Confirm your consulting email has <strong>Fabric Admin role</strong> assigned — test by opening the Fabric Admin portal</span>
+        </li>
+        <li>
+          <span class="step-num">3</span>
+          <span class="step-text">Create the three workspaces following the agreed naming convention — <strong>DEV, TEST, PROD</strong></span>
+        </li>
+        <li>
+          <span class="step-num">4</span>
+          <span class="step-text">Assign <strong>capacity</strong> to each workspace — DEV on smaller SKU, PROD on right-sized SKU</span>
+        </li>
+        <li>
+          <span class="step-num">5</span>
+          <span class="step-text">Add <strong>team members</strong> to workspaces with correct roles — Admin, Member, Contributor, Viewer</span>
+        </li>
+        <li>
+          <span class="step-num">6</span>
+          <span class="step-text">Create <strong>cloud connections</strong> for each source system in Manage Connections and Gateways</span>
+        </li>
+        <li>
+          <span class="step-num">7</span>
+          <span class="step-text">Register <strong>Key Vault reference</strong> if pipelines need credentials — see fabric_admin_infra_guide.html Step 5</span>
+        </li>
+        <li>
+          <span class="step-num">8</span>
+          <span class="step-text">Once gateway is installed by infra team — verify it appears as Online and configure on-prem source connections</span>
+        </li>
+        <li>
+          <span class="step-num">9</span>
+          <span class="step-text">Create the <strong>control database</strong> and <code>dbo.pipeline_control</code> table for pipeline logging</span>
+        </li>
+        <li>
+          <span class="step-num">10</span>
+          <span class="step-text">Connect <strong>DEV workspace to Git</strong> (Azure DevOps or GitHub) — branch: dev</span>
+        </li>
+        <li>
+          <span class="step-num">11</span>
+          <span class="step-text">Create a <strong>hello world notebook</strong> in DEV — confirm Spark session starts, lakehouse attaches, Key Vault reads work</span>
+        </li>
+        <li>
+          <span class="step-num">12</span>
+          <span class="step-text">Walk the team through the environment — every engineer should be able to log in, find their workspace, and open a notebook</span>
+        </li>
+      </ul>
+
+      <div class="note note-green">
+        <span class="note-icon">💡</span>
+        <span>The hello world notebook is not optional. It proves the full stack works — workspace, capacity, lakehouse, Key Vault, and Spark — before the team starts building real pipelines. Finding a broken connection on hello world is far cheaper than finding it mid-sprint.</span>
+      </div>
+
+      <div class="sub-section">
+        <div class="code-label">Reference Documents for This Phase</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:4px;">
+          <span class="ref-tag">📎 fabric_admin_infra_guide.html — Steps 1 to 5</span>
+          <span class="ref-tag">📎 fabric_architect_guide.html — Workspace Management</span>
+          <span class="ref-tag">📎 fabric_architect_guide.html — Capacity Management</span>
+        </div>
+      </div>
+
+      <!-- Exit checklist -->
+      <div class="sub-section">
+        <div class="code-label">Phase 3 Exit — You Are Ready for Phase 4 When</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">✅</span>DEV, TEST, PROD workspaces created and named correctly</li>
+          <li><span class="exit-icon">✅</span>All team members can log in and access their workspace</li>
+          <li><span class="exit-icon">✅</span>All source connections tested and showing green</li>
+          <li><span class="exit-icon">✅</span>Key Vault secrets accessible from a notebook</li>
+          <li><span class="exit-icon">✅</span>Control database and pipeline_control table created</li>
+          <li><span class="exit-icon">✅</span>Git integration connected to DEV workspace</li>
+          <li><span class="exit-icon">✅</span>Hello world notebook runs end-to-end without errors</li>
+          <li><span class="exit-icon">✅</span>svc-fabricadmin service account created and owns connections</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 4 — BUILD
+  ══════════════════════════════════════════ -->
+  <div class="section" id="s-build">
+    <button class="section-toggle" onclick="toggle('s-build')">
+      <span class="phase-badge p4">Phase 4</span>
+      <span class="section-title">Build</span>
+      <span class="section-meta">Leading the team · Bronze → Silver → Gold · Code review</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        The longest phase. You are building the data platform while leading a team of engineers. Your role shifts — you are not doing all the coding yourself. You are setting direction, reviewing work, unblocking people, and ensuring standards are followed.
+      </div>
+
+      <!-- Your role as lead -->
+      <div class="code-label">Your Role as Lead Architect in the Build Phase</div>
+      <div class="code-block"><span class="c-key">You own</span>
+  → Architecture decisions — when the team hits a fork in the road, you decide
+  → Code review — all PRs reviewed before merge to dev branch
+  → Standards enforcement — you are the referee for the standards guide
+  → Unblocking — when an engineer is stuck more than 2 hours, you step in
+  → Stakeholder communication — weekly status, scope changes, risk escalation
+  → Deployment to TEST and PROD — only you promote across environments
+
+<span class="c-key">Team owns</span>
+  → Feature branch development — each engineer owns their source or layer
+  → Unit testing their own notebooks and pipelines
+  → Raising PRs for review — not self-merging
+  → Updating pipeline_control logs in every notebook they write
+  → Flagging blockers to you immediately — not sitting on them</div>
+
+      <!-- Build order -->
+      <div class="sub-section">
+        <div class="code-label">Build Order — Always in This Sequence</div>
+        <div class="code-block"><span class="c-warn">Bronze first</span>  — get raw data landing before anything else
+  → One notebook per source entity
+  → Watermark pattern from Day 1
+  → Control table logging from Day 1
+  → No transformations in Bronze
+  → Prove the API / source connection works end-to-end
+
+<span class="c-teal">Silver second</span> — once Bronze is stable and reviewed
+  → Type casting, null handling, deduplication
+  → Upsert by natural key
+  → Schema enforcement
+  → Do not start Silver until Bronze is signed off
+
+<span class="c-val">Gold last</span>     — once Silver is stable
+  → Star schema — fact and dimension tables
+  → Aggregations and KPIs
+  → Optimised for Power BI
+  → Do not start Gold until Silver is signed off
+
+<span class="c-purple">Power BI parallel</span> — can start against Gold once first Gold table exists
+  → Semantic model on top of Gold Delta tables
+  → Direct Lake mode where possible
+  → Reports built by BI developer, not data engineer</div>
+
+      <!-- Team management -->
+      <div class="sub-section">
+        <div class="code-label">Managing the Team Day to Day</div>
+        <table class="data-table">
+          <thead><tr><th>Cadence</th><th>What you do</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Daily standup</strong></td><td>What did you do, what are you doing, what is blocking you</td><td>Catches blockers before they become delays</td></tr>
+            <tr><td><strong>PR review</strong></td><td>Review every pull request before merge — check standards, logic, error handling</td><td>Prevents technical debt accumulating</td></tr>
+            <tr><td><strong>Weekly stakeholder</strong></td><td>Status update — what is done, what is next, any risks</td><td>No surprises at milestone reviews</td></tr>
+            <tr><td><strong>Fortnightly architecture review</strong></td><td>Is the architecture still right or do decisions need revisiting</td><td>Requirements change — architecture must adapt</td></tr>
+            <tr><td><strong>End of each source</strong></td><td>Demo to stakeholder — Bronze + Silver for that source working</td><td>Builds confidence and catches misaligned requirements early</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Code review -->
+      <div class="sub-section">
+        <div class="code-label">Code Review — What You Check on Every PR</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">🔍</span>Naming follows the standards guide — snake_case, correct prefix</li>
+          <li><span class="exit-icon">🔍</span>No hardcoded secrets anywhere — all from Key Vault</li>
+          <li><span class="exit-icon">🔍</span>Every function has a docstring and type hints</li>
+          <li><span class="exit-icon">🔍</span>Try/except wraps every data operation — and re-raises after logging</li>
+          <li><span class="exit-icon">🔍</span>Control table is updated — start and end of every run</li>
+          <li><span class="exit-icon">🔍</span>Watermark is read before run and written after successful run</li>
+          <li><span class="exit-icon">🔍</span>Bronze files land in the correct path structure</li>
+          <li><span class="exit-icon">🔍</span>SQL uses parameterised queries — no f-strings for values</li>
+          <li><span class="exit-icon">🔍</span>Comments explain WHY, not WHAT</li>
+        </ul>
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>A PR with a hardcoded secret is an instant rejection — rotate the secret immediately, do not just ask them to remove it from the code. Git history retains it even after deletion.</span>
+        </div>
+      </div>
+
+      <!-- Greenfield vs migration in build -->
+      <div class="sub-section">
+        <div class="code-label">Greenfield vs Migration — Build Phase Differences</div>
+        <div class="scenario-grid">
+          <div class="scenario-card">
+            <div class="scenario-card-title greenfield-title">🌱 Greenfield Build</div>
+            <ul>
+              <li>Build Bronze ingestion per source from scratch</li>
+              <li>Define schemas as you discover the data</li>
+              <li>No legacy code to reference</li>
+              <li>Freedom to design the right way</li>
+              <li>Risk: requirements may be vague early</li>
+              <li>Mitigation: demo early and often</li>
+            </ul>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-card-title migration-title">🔄 Migration Build</div>
+            <ul>
+              <li>Migrate one source system at a time</li>
+              <li>Run old and new in parallel per source</li>
+              <li>Validate row counts and totals match</li>
+              <li>Legacy code is reference — not copy-paste</li>
+              <li>Risk: hidden business logic in old code</li>
+              <li>Mitigation: involve the people who built the old system</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Exit checklist -->
+      <div class="sub-section">
+        <div class="code-label">Phase 4 Exit — You Are Ready for Phase 5 When</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">✅</span>All Bronze notebooks running successfully in DEV with control table logging</li>
+          <li><span class="exit-icon">✅</span>All Silver tables populated and validated against Bronze</li>
+          <li><span class="exit-icon">✅</span>Gold layer tables built and semantic model connected</li>
+          <li><span class="exit-icon">✅</span>All PRs reviewed and merged — no open feature branches</li>
+          <li><span class="exit-icon">✅</span>Pipelines scheduled and running unattended in DEV</li>
+          <li><span class="exit-icon">✅</span>Initial Power BI reports built against Gold layer</li>
+          <li><span class="exit-icon">✅</span>No hardcoded secrets anywhere in any notebook</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 5 — VALIDATE
+  ══════════════════════════════════════════ -->
+  <div class="section" id="s-validate">
+    <button class="section-toggle" onclick="toggle('s-validate')">
+      <span class="phase-badge p5">Phase 5</span>
+      <span class="section-title">Validate</span>
+      <span class="section-meta">Testing · UAT · Performance · Security</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Before anything reaches PROD, it must be validated thoroughly. Validation is not just technical testing — it includes business sign-off, performance testing, and a security review. All three must pass.
+      </div>
+
+      <!-- Three types of validation -->
+      <div class="code-label">Three Types of Validation Required</div>
+      <div class="code-block"><span class="c-key">Technical validation</span>   — the data engineer's job
+  → Does the pipeline run without errors?
+  → Is the row count correct?
+  → Are the data types correct?
+  → Does the watermark advance correctly after each run?
+  → Does the control table log success and failure correctly?
+
+<span class="c-teal">Business validation (UAT)</span> — the business stakeholder's job
+  → Does the data match what they expect?
+  → Do the report numbers match the source system?
+  → Are the definitions correct? (e.g. what counts as an "active customer")
+  → Can they find the information they need in the report?
+
+<span class="c-val">Performance and security</span>  — your job as architect
+  → Does the pipeline complete within the required time window?
+  → Are reports loading within acceptable response time?
+  → Is RLS applied correctly — users only see what they should?
+  → Is capacity usage within the purchased SKU limits?</div>
+
+      <!-- Promotion to TEST -->
+      <div class="sub-section">
+        <div class="code-label">Promoting DEV → TEST</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          TEST is where business users do UAT. It must look and behave like PROD.
+        </div>
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-text">Run the <strong>DEV → TEST promotion checklist</strong> from fabric_standards_guide.html</span></li>
+          <li><span class="step-num">2</span><span class="step-text">Use the Fabric <strong>deployment pipeline</strong> to promote items — not manual copy</span></li>
+          <li><span class="step-num">3</span><span class="step-text">Verify all <strong>connections</strong> point to TEST data sources — not DEV sources</span></li>
+          <li><span class="step-num">4</span><span class="step-text">Run all pipelines once in TEST — confirm control table shows success</span></li>
+          <li><span class="step-num">5</span><span class="step-text">Invite business users to TEST — provide UAT sign-off form</span></li>
+        </ul>
+        <span class="ref-tag">📎 fabric_standards_guide.html — Promotion Rules section</span>
+      </div>
+
+      <!-- UAT management -->
+      <div class="sub-section">
+        <div class="code-label">Managing UAT with Business Users</div>
+        <table class="data-table">
+          <thead><tr><th>Step</th><th>Who</th><th>What</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Define test cases</strong></td><td>You + business analyst</td><td>List of specific things to check with expected values</td></tr>
+            <tr><td><strong>Run test cases</strong></td><td>Business users</td><td>They test in TEST environment against real scenarios</td></tr>
+            <tr><td><strong>Log defects</strong></td><td>Business users</td><td>Anything that does not match expectation is a defect</td></tr>
+            <tr><td><strong>Fix defects</strong></td><td>Engineers in DEV</td><td>Fix in DEV, promote to TEST, retest</td></tr>
+            <tr><td><strong>Sign-off</strong></td><td>Named UAT approver</td><td>Written sign-off before PROD promotion</td></tr>
+          </tbody>
+        </table>
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Verbal UAT sign-off is not sign-off. Get it in writing — an email is sufficient. "It looks good" in a meeting is not approval to go to production.</span>
+        </div>
+      </div>
+
+      <!-- Exit checklist -->
+      <div class="sub-section">
+        <div class="code-label">Phase 5 Exit — You Are Ready for Phase 6 When</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">✅</span>All pipelines run successfully in TEST environment</li>
+          <li><span class="exit-icon">✅</span>Written UAT sign-off received from named business approver</li>
+          <li><span class="exit-icon">✅</span>All UAT defects fixed and retested</li>
+          <li><span class="exit-icon">✅</span>Performance is within acceptable limits under realistic load</li>
+          <li><span class="exit-icon">✅</span>RLS tested — users cannot see data they should not see</li>
+          <li><span class="exit-icon">✅</span>Rollback plan documented in writing</li>
+          <li><span class="exit-icon">✅</span>Go-live date agreed with all stakeholders</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 6 — DELIVER
+  ══════════════════════════════════════════ -->
+  <div class="section" id="s-deliver">
+    <button class="section-toggle" onclick="toggle('s-deliver')">
+      <span class="phase-badge p6">Phase 6</span>
+      <span class="section-title">Deliver</span>
+      <span class="section-meta">Go-live · Handover · Training · Exit</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Go-live is not the end — it is the beginning of handover. This phase ensures the client can run the platform without you. Never leave a client dependent on your phone number.
+      </div>
+
+      <!-- Go live plan -->
+      <div class="code-label">Go-Live Plan</div>
+      <div class="code-block"><span class="c-key">Before go-live (at least 1 week before)</span>
+  → Promote TEST → PROD via deployment pipeline
+  → Verify all connections point to PROD data sources
+  → Run all pipelines once manually in PROD — verify success
+  → Verify scheduled runs are configured and enabled
+  → Confirm capacity is right-sized for PROD load — not paused
+  → Confirm svc-fabricadmin owns all connections and Key Vault refs
+  → Share rollback plan with client stakeholder
+
+<span class="c-key">Go-live day</span>
+  → Cut over on a Tuesday, Wednesday, or Thursday morning
+  → <span class="c-warn">Never go live on a Friday</span>
+  → Monitor the first scheduled pipeline run — stay online
+  → Check control table shows success for all entities
+  → Confirm business users can access reports
+
+<span class="c-key">Day after go-live</span>
+  → Review previous day's pipeline runs
+  → Check capacity metrics — any throttling?
+  → Address any issues raised by business users
+  → Confirm scheduled runs completed overnight</div>
+
+      <!-- Handover -->
+      <div class="sub-section">
+        <div class="code-label">Handover to Permanent Team</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          The permanent employee who will own this platform should have been shadowing you since Phase 3. By now they should be capable of running it independently. Handover is confirmation, not a crash course.
+        </div>
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-text">Walk the permanent admin through all four HTML guides — admin infra, architect, standards, and this runbook</span></li>
+          <li><span class="step-num">2</span><span class="step-text">Demonstrate how to check the <strong>control table</strong> for pipeline status — this is their daily health check</span></li>
+          <li><span class="step-num">3</span><span class="step-text">Show them the <strong>Fabric Capacity Metrics app</strong> — where to look if reports are slow</span></li>
+          <li><span class="step-num">4</span><span class="step-text">Walk them through the <strong>deployment pipeline</strong> — how to promote a fix from DEV to PROD</span></li>
+          <li><span class="step-num">5</span><span class="step-text">Confirm they can access all workspaces, connections, and Key Vault with their own credentials</span></li>
+          <li><span class="step-num">6</span><span class="step-text">Transfer all Fabric Admin responsibilities — they should be Fabric Admin before you leave, not after</span></li>
+        </ul>
+      </div>
+
+      <!-- Documentation -->
+      <div class="sub-section">
+        <div class="code-label">Documentation Handover Checklist</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">📄</span>Architecture diagram — current state, not the original design</li>
+          <li><span class="exit-icon">📄</span>fabric_admin_infra_guide.html — updated with client-specific details</li>
+          <li><span class="exit-icon">📄</span>fabric_standards_guide.html — updated with any agreed client changes</li>
+          <li><span class="exit-icon">📄</span>Source system inventory — what is connected, how, and who owns each source</li>
+          <li><span class="exit-icon">📄</span>Key Vault secret names — what each secret is used for</li>
+          <li><span class="exit-icon">📄</span>Scheduled pipeline schedule — what runs when and what it does</li>
+          <li><span class="exit-icon">📄</span>Known limitations — anything that is a workaround or has a known issue</li>
+          <li><span class="exit-icon">📄</span>Future roadmap items — features that were descoped or not yet built</li>
+        </ul>
+      </div>
+
+      <!-- Exit from consulting guide -->
+      <div class="sub-section">
+        <div class="code-label">Consultant Exit Checklist</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">✅</span>Permanent employee is Fabric Admin and can perform all admin tasks independently</li>
+          <li><span class="exit-icon">✅</span>svc-fabricadmin owns all connections — not your email</li>
+          <li><span class="exit-icon">✅</span>svc-fabricgateway owns the gateway registration — not your email</li>
+          <li><span class="exit-icon">✅</span>All Key Vault references authorised by service account — not you</li>
+          <li><span class="exit-icon">✅</span>Your consulting email removed from all workspace roles</li>
+          <li><span class="exit-icon">✅</span>M365 Admin removes Fabric Admin role from your consulting email</li>
+          <li><span class="exit-icon">✅</span>All documentation handed over and walked through</li>
+          <li><span class="exit-icon">✅</span>No open PRs or uncommitted changes in any branch</li>
+          <li><span class="exit-icon">✅</span>Git repository is clean — main branch reflects exactly what is in PROD</li>
+        </ul>
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Start the exit checklist at least <strong>two weeks before your last day</strong> — not on the last day. Everything tied to your personal account needs to be transferred while you are still there to fix it.</span>
+        </div>
+        <span class="ref-tag" style="margin-top:10px; display:inline-flex;">📎 fabric_admin_infra_guide.html — Consulting Engagement section for full exit detail</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       PHASE 7 — SUSTAIN
+  ══════════════════════════════════════════ -->
+  <div class="section" id="s-sustain">
+    <button class="section-toggle" onclick="toggle('s-sustain')">
+      <span class="phase-badge p7">Phase 7</span>
+      <span class="section-title">Sustain</span>
+      <span class="section-meta">Hypercare · Monitoring · Final sign-off</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Some engagements include a hypercare period after go-live where you remain available for support. This phase is optional but common in large engagements. Define the hypercare terms clearly before it starts.
+      </div>
+
+      <div class="code-label">Define Hypercare Terms Before Go-Live</div>
+      <div class="code-block"><span class="c-key">Duration        </span>: Typically 2–4 weeks after go-live
+<span class="c-key">Availability    </span>: Agree upfront — business hours only vs on-call
+<span class="c-key">Scope           </span>: Bug fixes only vs new features vs both
+<span class="c-key">Response time   </span>: P1 issues within X hours — agree the SLA
+<span class="c-key">Communication   </span>: Teams channel, email, or ticketing system
+<span class="c-key">End condition   </span>: What marks the end of hypercare — date or stability criteria</div>
+
+      <div class="note">
+        <span class="note-icon">⚠</span>
+        <span>Without a defined end condition, hypercare becomes indefinite support. Agree a clear end date or stability criterion before go-live — "two weeks with no P1 incidents" is a good criterion.</span>
+      </div>
+
+      <!-- What to monitor -->
+      <div class="sub-section">
+        <div class="code-label">What to Monitor During Hypercare</div>
+        <table class="data-table">
+          <thead><tr><th>What to check</th><th>Where to look</th><th>Frequency</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Pipeline run status</strong></td><td>dbo.pipeline_control — last_status column</td><td>Daily</td></tr>
+            <tr><td><strong>Capacity usage</strong></td><td>Fabric Capacity Metrics app</td><td>Daily first week, weekly after</td></tr>
+            <tr><td><strong>Failed pipeline alerts</strong></td><td>Fabric Monitor hub or email alerts</td><td>Immediately on trigger</td></tr>
+            <tr><td><strong>Report load times</strong></td><td>Power BI performance analyser</td><td>Weekly</td></tr>
+            <tr><td><strong>Scheduled job completion</strong></td><td>Pipeline run history in Fabric</td><td>Daily</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Knowledge transfer -->
+      <div class="sub-section">
+        <div class="code-label">Final Knowledge Transfer</div>
+        <ul class="steps">
+          <li><span class="step-num">1</span><span class="step-text">Record a walkthrough video of the key platform components — permanent teams refer to this after you leave</span></li>
+          <li><span class="step-num">2</span><span class="step-text">Run a <strong>troubleshooting session</strong> with the permanent team — walk through common failure scenarios and how to diagnose them</span></li>
+          <li><span class="step-num">3</span><span class="step-text">Document the <strong>top 5 things that could go wrong</strong> and exactly what to do for each one</span></li>
+          <li><span class="step-num">4</span><span class="step-text">Confirm the permanent team knows how to <strong>rotate the Strava refresh token</strong> and update it in Key Vault</span></li>
+          <li><span class="step-num">5</span><span class="step-text">Leave a <strong>future roadmap note</strong> — what the next logical things to build are, so the team is not starting from a blank page after you leave</span></li>
+        </ul>
+      </div>
+
+      <!-- Final exit -->
+      <div class="sub-section">
+        <div class="code-label">Phase 7 Exit — Engagement Complete When</div>
+        <ul class="exit-list">
+          <li><span class="exit-icon">✅</span>Hypercare period completed with no outstanding P1 issues</li>
+          <li><span class="exit-icon">✅</span>Permanent team is running the platform independently without your help</li>
+          <li><span class="exit-icon">✅</span>Final documentation handed over including troubleshooting guide</li>
+          <li><span class="exit-icon">✅</span>Your consulting email fully removed from all systems</li>
+          <li><span class="exit-icon">✅</span>Client sign-off on project completion received in writing</li>
+          <li><span class="exit-icon">✅</span>Lessons learned documented for your own next engagement</li>
+        </ul>
+        <div class="note note-green">
+          <span class="note-icon">💡</span>
+          <span>The best measure of a successful consulting engagement is that the client does not need to call you back to fix something. If they do call — it should be to bring you in for the next project.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Fabric Architect Consultant Runbook · May 2026
+    <div class="version-tag">v1.0 — 7 phases · Greenfield + Migration</div>
+  </div>
+
+</div>
+
+<script>
+  function toggle(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+</script>
+</body>
+</html>

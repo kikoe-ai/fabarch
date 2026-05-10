@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fabric Standards Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2435;
+    --border: #2a3050;
+    --border2: #3a4568;
+    --text: #e8eaf0;
+    --text2: #8b93b0;
+    --text3: #4a5270;
+    --blue: #4d7cfe;
+    --blue-dim: #1a2d6b;
+    --green: #3dd68c;
+    --green-dim: #0d3d25;
+    --amber: #f5a623;
+    --amber-dim: #3d2800;
+    --amber-light: rgba(245,166,35,0.08);
+    --coral: #ff6b6b;
+    --coral-dim: rgba(255,107,107,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --teal: #2dd4bf;
+    --teal-dim: rgba(45,212,191,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1rem 5rem;
+  }
+
+  .page { max-width: 800px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    border-left: 3px solid var(--amber);
+    padding-left: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+  .header-sub { font-size: 13px; color: var(--text2); }
+
+  /* Intro band */
+  .intro-band {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    margin: 1rem 0 1.75rem;
+    font-size: 12px;
+    color: var(--text3);
+    font-family: var(--mono);
+  }
+  .intro-band span { color: var(--amber); }
+
+  /* Section wrapper */
+  .section {
+    margin-bottom: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--surface);
+  }
+
+  .section-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    color: var(--text);
+    transition: background 0.15s;
+  }
+  .section-toggle:hover { background: var(--surface2); }
+
+  .step-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 99px;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  .badge-naming   { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(245,166,35,0.2); }
+  .badge-ws       { background: var(--green-dim); color: var(--green); border: 1px solid rgba(61,214,140,0.2); }
+  .badge-medallion{ background: var(--blue-dim);  color: var(--blue);  border: 1px solid rgba(77,124,254,0.2); }
+  .badge-pipeline { background: var(--purple-dim);color: var(--purple);border: 1px solid rgba(167,139,250,0.2); }
+  .badge-code     { background: var(--teal-dim);  color: var(--teal);  border: 1px solid rgba(45,212,191,0.2); }
+  .badge-git      { background: var(--coral-dim); color: var(--coral); border: 1px solid rgba(255,107,107,0.2); }
+  .badge-promote  { background: var(--surface2);  color: var(--text2); border: 1px solid var(--border2); }
+  .badge-coming   { background: var(--surface2);  color: var(--text3); border: 1px solid var(--border); }
+
+  .section-title { font-size: 14px; font-weight: 600; flex: 1; }
+  .section-meta  { font-size: 11px; color: var(--text3); font-family: var(--mono); }
+
+  .chevron {
+    width: 16px; height: 16px;
+    color: var(--text3);
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+  }
+  .section.open .chevron { transform: rotate(180deg); }
+
+  .section-body {
+    display: none;
+    padding: 0 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .section.open .section-body { display: block; }
+
+  .section-desc {
+    font-size: 12.5px;
+    color: var(--text2);
+    padding: 12px 0 16px;
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+
+  /* Code block */
+  .code-block {
+    background: #0a0d14;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 16px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    line-height: 1.8;
+    color: #c8cde0;
+    white-space: pre;
+    overflow-x: auto;
+  }
+  .code-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 8px;
+  }
+
+  .c-key     { color: var(--blue); }
+  .c-val     { color: var(--green); }
+  .c-warn    { color: var(--amber); }
+  .c-bad     { color: var(--coral); }
+  .c-comment { color: #4a5270; font-style: italic; }
+  .c-teal    { color: var(--teal); }
+
+  /* Table */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+    margin-top: 4px;
+  }
+  .data-table th {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border2);
+    background: var(--surface2);
+  }
+  .data-table td {
+    padding: 9px 12px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text2);
+    vertical-align: top;
+  }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td strong { color: var(--text); font-weight: 500; }
+  .data-table td code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--blue);
+  }
+  .data-table td .bad {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.2);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--coral);
+  }
+
+  /* Steps */
+  .steps { list-style: none; margin-top: 4px; }
+  .steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .steps li:last-child { border-bottom: none; }
+  .step-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--text3);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .step-text { flex: 1; color: var(--text2); }
+  .step-text strong { color: var(--text); font-weight: 500; }
+  .step-text code {
+    font-family: var(--mono);
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 1px 6px;
+    color: var(--blue);
+  }
+
+  /* Note */
+  .note {
+    display: flex;
+    gap: 10px;
+    background: var(--amber-light);
+    border: 1px solid rgba(245,166,35,0.2);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-top: 14px;
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.5;
+  }
+  .note-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .note-green { background: rgba(61,214,140,0.06); border-color: rgba(61,214,140,0.2); }
+  .note-blue  { background: rgba(77,124,254,0.06); border-color: rgba(77,124,254,0.2); }
+
+  /* Sub-divider */
+  .sub-section {
+    margin-top: 24px;
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 2.5rem;
+    text-align: center;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .version-tag {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 4px 14px;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">Microsoft Fabric</div>
+    <h1>Team Standards Guide</h1>
+    <div class="header-sub">Agreed standards for the whole data team — presented and signed off on Day 1.</div>
+  </div>
+
+  <div class="intro-band">
+    📋 Present this to the team on Day 1 · Get verbal agreement on each section · This becomes the referee for all naming and structure decisions
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 1 — NAMING CONVENTIONS
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s-naming">
+    <button class="section-toggle" onclick="toggle('s-naming')">
+      <span class="step-badge badge-naming">Standards</span>
+      <span class="section-title">Naming Conventions</span>
+      <span class="section-meta">Workspaces · Tables · Pipelines · Notebooks</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        One naming convention agreed on Day 1 prevents months of inconsistency. The rule is simple — snake_case for everything engineers write or reference in code, readable Title Case for everything business users see in reports.
+      </div>
+
+      <!-- The core rule -->
+      <div class="code-label">The Core Rule</div>
+      <div class="code-block"><span class="c-val">Engineers see it</span>  →  <span class="c-key">snake_case</span>   with a type prefix
+<span class="c-val">Business sees it</span>  →  <span class="c-teal">Title Case</span>  with spaces
+
+<span class="c-comment"># Example — same concept, two different names</span>
+Table in lakehouse     : <span class="c-key">silver_strava_activities</span>      ← engineer writes this in SQL
+Column name in report  : <span class="c-teal">Total Active Minutes</span>          ← business user sees this in Power BI</div>
+
+      <!-- Workspace naming -->
+      <div class="sub-section">
+        <div class="code-label">Workspaces</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          Workspaces use uppercase environment suffix with hyphens for readability in the Fabric nav panel. Everything else uses snake_case.
+        </div>
+        <div class="code-block"><span class="c-val">WS-{ProjectName}-{ENV}</span>
+
+<span class="c-comment"># Examples</span>
+<span class="c-key">WS-Finance-DEV</span>
+<span class="c-key">WS-Finance-TEST</span>
+<span class="c-key">WS-Finance-PROD</span>
+<span class="c-key">WS-Finance-SHARED</span>   <span class="c-comment"># shared certified assets</span>
+
+<span class="c-comment"># Not this</span>
+<span class="c-bad">Finance Dev Workspace</span>   <span class="c-comment"># no env clarity, hard to filter</span>
+<span class="c-bad">ws_finance_dev</span>          <span class="c-comment"># snake_case works but harder to read in nav</span></div>
+      </div>
+
+      <!-- All items table -->
+      <div class="sub-section">
+        <div class="code-label">All Item Types — Prefix + Snake Case</div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Item</th><th>Prefix</th><th>Example</th><th>Avoid</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Lakehouse</strong></td>
+              <td><code>lh_</code></td>
+              <td><code>lh_bronze</code>, <code>lh_silver</code></td>
+              <td><span class="bad">Bronze Lakehouse</span></td>
+            </tr>
+            <tr>
+              <td><strong>Data Warehouse</strong></td>
+              <td><code>dw_</code></td>
+              <td><code>dw_finance</code></td>
+              <td><span class="bad">Finance DW</span></td>
+            </tr>
+            <tr>
+              <td><strong>Pipeline</strong></td>
+              <td><code>pl_</code></td>
+              <td><code>pl_strava_bronze_ingest</code></td>
+              <td><span class="bad">Strava Pipeline</span></td>
+            </tr>
+            <tr>
+              <td><strong>Notebook</strong></td>
+              <td><code>nb_</code></td>
+              <td><code>nb_strava_bronze</code></td>
+              <td><span class="bad">Notebook 1</span></td>
+            </tr>
+            <tr>
+              <td><strong>Dataflow Gen2</strong></td>
+              <td><code>df_</code></td>
+              <td><code>df_strava_activities</code></td>
+              <td><span class="bad">Strava Dataflow</span></td>
+            </tr>
+            <tr>
+              <td><strong>Semantic model</strong></td>
+              <td><code>sm_</code></td>
+              <td><code>sm_finance_reporting</code></td>
+              <td><span class="bad">Finance Dataset</span></td>
+            </tr>
+            <tr>
+              <td><strong>Environment</strong></td>
+              <td><code>env_</code></td>
+              <td><code>env_dev</code>, <code>env_prod</code></td>
+              <td><span class="bad">Dev Environment</span></td>
+            </tr>
+            <tr>
+              <td><strong>Connection</strong></td>
+              <td>source name</td>
+              <td><code>snowflake_demo_db</code></td>
+              <td><span class="bad">My Snowflake</span></td>
+            </tr>
+            <tr>
+              <td><strong>Key Vault ref</strong></td>
+              <td><code>kv_</code></td>
+              <td><code>kv_fabric_dev</code></td>
+              <td><span class="bad">KeyVault1</span></td>
+            </tr>
+            <tr>
+              <td><strong>Service account</strong></td>
+              <td><code>svc_</code></td>
+              <td><code>svc_fabricadmin</code></td>
+              <td><span class="bad">fabricadmin</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Table and column naming -->
+      <div class="sub-section">
+        <div class="code-label">Delta Tables and Columns — Most Important to Get Right</div>
+        <div class="section-desc" style="border:none; padding:0; margin-bottom:14px;">
+          Table and column names are referenced in SQL, PySpark, DAX, and notebooks. Spaces or mixed case cause quoting issues everywhere. Snake case only.
+        </div>
+        <div class="code-block"><span class="c-comment"># Table names — layer prefix + source + entity</span>
+<span class="c-key">bronze_{source}_{entity}</span>   : <span class="c-val">bronze_strava_activities</span>
+<span class="c-key">silver_{source}_{entity}</span>   : <span class="c-val">silver_strava_activities</span>
+<span class="c-key">gold_{domain}_{entity}</span>     : <span class="c-val">gold_fitness_daily_summary</span>
+
+<span class="c-comment"># Column names — descriptive, no abbreviations</span>
+<span class="c-val">athlete_id</span>              <span class="c-comment"># not ath_id or athleteId</span>
+<span class="c-val">start_date_local</span>        <span class="c-comment"># not startDate or start_dt</span>
+<span class="c-val">elapsed_time_seconds</span>    <span class="c-comment"># include unit in name for numeric columns</span>
+<span class="c-val">distance_metres</span>         <span class="c-comment"># not dist or distance</span>
+<span class="c-val">is_manual_entry</span>         <span class="c-comment"># boolean columns start with is_ or has_</span>
+<span class="c-val">has_heartrate</span>
+
+<span class="c-comment"># Audit columns — same across every table</span>
+<span class="c-val">_ingested_at</span>            <span class="c-comment"># underscore prefix = system column, not business data</span>
+<span class="c-val">_source</span>
+<span class="c-val">_pipeline_run_id</span></div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Never abbreviate column names to save typing. <code>elapsed_time_seconds</code> is always clearer than <code>elp_tm_sec</code>. Future team members will thank you.</span>
+        </div>
+      </div>
+
+      <!-- Business names -->
+      <div class="sub-section">
+        <div class="code-label">Business-Facing Names — Power BI Reports and Dashboards</div>
+        <div class="code-block"><span class="c-comment"># What business users see — Title Case, spaces allowed</span>
+Report name      : <span class="c-teal">Monthly Fitness Summary</span>
+Dashboard name   : <span class="c-teal">Executive KPI Dashboard</span>
+Measure name     : <span class="c-teal">Total Distance (km)</span>
+Column in visual : <span class="c-teal">Average Heart Rate</span>
+
+<span class="c-comment"># The underlying column in the table stays snake_case</span>
+Column in table  : <span class="c-key">avg_heart_rate_bpm</span>
+DAX measure name : <span class="c-key">avg_heart_rate_bpm</span>   <span class="c-comment"># in semantic model definition</span>
+Display name     : <span class="c-teal">Average Heart Rate</span>   <span class="c-comment"># what user sees in report</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 2 — WORKSPACE STRUCTURE
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s-workspace">
+    <button class="section-toggle" onclick="toggle('s-workspace')">
+      <span class="step-badge badge-ws">Standards</span>
+      <span class="section-title">Workspace Structure</span>
+      <span class="section-meta">DEV · TEST · PROD · Ownership</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Every project gets three workspaces minimum — DEV, TEST, PROD. Items move between them only through the deployment pipeline, never manually dragged across.
+      </div>
+
+      <div class="code-label">Standard Workspace Layout per Project</div>
+      <div class="code-block"><span class="c-key">WS-{Project}-DEV</span>
+  Purpose  : Active development and experimentation
+  Access   : Architect (Admin), Engineers (Contributor), Seniors (Member)
+  Capacity : Small F SKU — can be paused overnight
+
+<span class="c-key">WS-{Project}-TEST</span>
+  Purpose  : QA, UAT, stakeholder review
+  Access   : Architect (Admin), QA team (Contributor), Business users (Viewer)
+  Capacity : Same or slightly smaller than PROD
+
+<span class="c-key">WS-{Project}-PROD</span>
+  Purpose  : Live production — restricted write access
+  Access   : Architect (Admin), Service account (Admin), Business users (Viewer)
+  Capacity : Right-sized F SKU — never paused
+  Rule     : <span class="c-warn">No manual changes — all changes via deployment pipeline only</span>
+
+<span class="c-key">WS-{Project}-SHARED</span>  <span class="c-comment"># optional</span>
+  Purpose  : Certified semantic models, shared lakehouses across projects
+  Access   : Architect (Admin), read-only for consuming workspaces</div>
+
+      <!-- Who owns what -->
+      <div class="sub-section">
+        <div class="code-label">Ownership Rules</div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Workspace</th><th>Admin</th><th>Can write?</th><th>Who deploys?</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>DEV</strong></td>
+              <td>Architect + svc_fabricadmin</td>
+              <td>Engineers and above</td>
+              <td>Anyone with Contributor</td>
+            </tr>
+            <tr>
+              <td><strong>TEST</strong></td>
+              <td>Architect + svc_fabricadmin</td>
+              <td>Deployment pipeline only</td>
+              <td>Architect promotes from DEV</td>
+            </tr>
+            <tr>
+              <td><strong>PROD</strong></td>
+              <td>svc_fabricadmin only</td>
+              <td>Deployment pipeline only</td>
+              <td>Architect promotes from TEST</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>The single most common mistake on projects is someone making a hotfix directly in PROD. Agree this rule on Day 1 — all changes go through DEV first, no exceptions. Even urgent fixes.</span>
+        </div>
+      </div>
+
+      <!-- My Workspace rule -->
+      <div class="sub-section">
+        <div class="code-label">My Workspace — Zero Tolerance Rule</div>
+        <div class="code-block"><span class="c-bad">My Workspace</span> is for personal sandboxing only
+
+Rules:
+  → <span class="c-warn">No production data in My Workspace</span>
+  → <span class="c-warn">No shared pipelines or notebooks in My Workspace</span>
+  → <span class="c-warn">No scheduled jobs running from My Workspace</span>
+  → If you leave the company, everything in My Workspace is gone
+
+If you see something important in someone's My Workspace
+  → Move it to the correct shared workspace immediately</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 3 — MEDALLION ARCHITECTURE
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s-medallion">
+    <button class="section-toggle" onclick="toggle('s-medallion')">
+      <span class="step-badge badge-medallion">Standards</span>
+      <span class="section-title">Medallion Architecture</span>
+      <span class="section-meta">Bronze · Silver · Gold · Rules</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        All data flows through three layers. Each layer has strict rules about what is allowed and what is not. Nobody skips a layer — not even for a quick report deadline.
+      </div>
+
+      <div class="code-label">Layer Definitions</div>
+      <div class="code-block"><span class="c-warn">Bronze</span>  — Raw, immutable, exactly as received from source
+  Storage  : JSON files in <span class="c-key">Files/bronze/{source}/{entity}/</span>
+  Format   : Raw JSON with metadata envelope
+  Rule     : <span class="c-warn">NEVER transform or clean Bronze data</span>
+  Retention: Keep forever — this is your audit trail
+  Load type: Append only, never overwrite
+
+<span class="c-teal">Silver</span>  — Cleaned, typed, validated, conformed
+  Storage  : Delta tables in <span class="c-key">lh_silver</span> lakehouse
+  Format   : Delta Parquet, typed schema enforced
+  Rule     : One source of truth per entity
+             Nulls handled, types cast, duplicates removed
+  Load type: Upsert by natural key
+
+<span class="c-val">Gold</span>    — Business-ready, aggregated, shaped for consumption
+  Storage  : Delta tables in <span class="c-key">lh_gold</span> or Data Warehouse
+  Format   : Star schema — fact and dimension tables
+  Rule     : No raw source data — only derived/aggregated
+             Optimised for Power BI Direct Lake or DirectQuery
+  Load type: Full rebuild or incremental depending on volume</div>
+
+      <!-- What goes where -->
+      <div class="sub-section">
+        <div class="code-label">What Goes Where — Quick Reference</div>
+        <table class="data-table">
+          <thead>
+            <tr><th>Question</th><th>Bronze</th><th>Silver</th><th>Gold</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Raw API response</td>
+              <td>✅ Yes</td>
+              <td>❌ No</td>
+              <td>❌ No</td>
+            </tr>
+            <tr>
+              <td>Cleaned typed records</td>
+              <td>❌ No</td>
+              <td>✅ Yes</td>
+              <td>❌ No</td>
+            </tr>
+            <tr>
+              <td>KPIs and aggregations</td>
+              <td>❌ No</td>
+              <td>❌ No</td>
+              <td>✅ Yes</td>
+            </tr>
+            <tr>
+              <td>Power BI semantic model reads from</td>
+              <td>❌ Never</td>
+              <td>⚠ Rarely</td>
+              <td>✅ Always</td>
+            </tr>
+            <tr>
+              <td>Can be deleted and rebuilt</td>
+              <td>❌ Never</td>
+              <td>✅ Yes</td>
+              <td>✅ Yes</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note note-green">
+          <span class="note-icon">💡</span>
+          <span>Bronze is the only layer that cannot be rebuilt from scratch — it is your source of truth if the API goes down or data changes upstream. Treat it like a ledger. Never delete, never overwrite.</span>
+        </div>
+      </div>
+
+      <!-- File and partition standards -->
+      <div class="sub-section">
+        <div class="code-label">Bronze File Path Convention</div>
+        <div class="code-block"><span class="c-comment"># Full load — replaces entire entity snapshot</span>
+Files/bronze/{source}/{entity}/full/{entity}_{YYYYMMDD_HHMMSS}.json
+
+<span class="c-comment"># Incremental load — partitioned by date</span>
+Files/bronze/{source}/{entity}/incremental/year={YYYY}/month={MM}/day={DD}/{entity}_{YYYYMMDD_HHMMSS}.json
+
+<span class="c-comment"># Examples</span>
+Files/bronze/strava/athlete/full/athlete_20260509_013000.json
+Files/bronze/strava/activities/incremental/year=2026/month=05/day=09/activities_20260509_013000.json</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 4 — PIPELINE STANDARDS
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s-pipeline">
+    <button class="section-toggle" onclick="toggle('s-pipeline')">
+      <span class="step-badge badge-pipeline">Standards</span>
+      <span class="section-title">Pipeline &amp; Notebook Standards</span>
+      <span class="section-meta">Control table · Logging · Error handling · Retry</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Every pipeline and notebook follows the same pattern for logging, error handling, and watermark management. Consistency here makes monitoring and debugging predictable across the whole project.
+      </div>
+
+      <!-- Control table -->
+      <div class="code-label">Control Table — Every Pipeline Logs Here</div>
+      <div class="code-block"><span class="c-comment"># dbo.pipeline_control in control_db</span>
+<span class="c-comment"># One row per entity — UPSERT on every run</span>
+
+Before run  : UPDATE status = <span class="c-warn">'running'</span>,  last_run_at = SYSUTCDATETIME()
+Success     : UPDATE status = <span class="c-val">'success'</span>, last_file_path, record_count, watermark
+Failure     : UPDATE status = <span class="c-bad">'failed'</span>,  error_message = first 1000 chars of exception
+
+<span class="c-comment"># Watermark — incremental loads only</span>
+After successful incremental run → update watermark = max(start_date_local)
+Next run reads watermark → only pulls data after that datetime</div>
+
+      <!-- Notebook structure -->
+      <div class="sub-section">
+        <div class="code-label">Standard Notebook Cell Structure</div>
+        <div class="code-block"><span class="c-key">Cell 1</span> : Parameters          <span class="c-comment"># toggle as Parameters cell in Fabric</span>
+<span class="c-key">Cell 2</span> : Imports and setup    <span class="c-comment"># all imports, logging config, spark settings</span>
+<span class="c-key">Cell 3</span> : Secret retrieval     <span class="c-comment"># Key Vault calls — all secrets at the top</span>
+<span class="c-key">Cell 4</span> : Helper functions     <span class="c-comment"># reusable functions with docstrings</span>
+<span class="c-key">Cell 5</span> : Watermark / control  <span class="c-comment"># read control table, determine run scope</span>
+<span class="c-key">Cell 6</span> : Data extraction      <span class="c-comment"># API call / source query</span>
+<span class="c-key">Cell 7</span> : Write to layer       <span class="c-comment"># Bronze / Silver / Gold write</span>
+<span class="c-key">Cell 8</span> : Update control table <span class="c-comment"># log success or failure</span>
+<span class="c-key">Cell 9</span> : Summary output       <span class="c-comment"># print run summary for monitoring</span></div>
+      </div>
+
+      <!-- Error handling -->
+      <div class="sub-section">
+        <div class="code-label">Error Handling Rules</div>
+        <div class="code-block"><span class="c-comment"># Every data operation wrapped in try/except</span>
+try:
+    path = save_to_bronze(payload, entity, load_type)
+    log_pipeline_end(status=<span class="c-val">"success"</span>, bronze_path=path)
+except Exception as e:
+    log_pipeline_end(status=<span class="c-bad">"failed"</span>, error_message=str(e))
+    raise  <span class="c-comment"># always re-raise so pipeline marks activity as failed</span>
+
+<span class="c-comment"># API rate limits — always handle gracefully</span>
+if response.status_code == 429:
+    retry_after = int(response.headers.get("Retry-After", 60))
+    time.sleep(retry_after)  <span class="c-comment"># respect the API's backoff instruction</span></div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Always <code>raise</code> after logging the failure. Swallowing exceptions silently means the pipeline shows green in the monitor while data was never written. Silent failures are the hardest bugs to find.</span>
+        </div>
+      </div>
+
+      <!-- Secrets rule -->
+      <div class="sub-section">
+        <div class="code-label">Secrets — Zero Tolerance Rule</div>
+        <div class="code-block"><span class="c-bad"># NEVER — hardcoded secrets anywhere in code</span>
+client_secret = "abc123xyz"                        <span class="c-bad">← instant rejection in code review</span>
+password      = "MyP@ssw0rd"                       <span class="c-bad">← instant rejection in code review</span>
+
+<span class="c-val"># ALWAYS — pull from Key Vault at runtime</span>
+client_secret = notebookutils.credentials.getSecret(kv_uri, "strava-client-secret")
+
+<span class="c-comment"># If you accidentally commit a secret to Git</span>
+<span class="c-comment"># → rotate the secret immediately, do not just delete the commit</span>
+<span class="c-comment"># → Git history retains deleted lines</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 5 — CODE STANDARDS
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s-code">
+    <button class="section-toggle" onclick="toggle('s-code')">
+      <span class="step-badge badge-code">Standards</span>
+      <span class="section-title">Code Standards</span>
+      <span class="section-meta">Python · PySpark · SQL · Comments</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Consistent code standards mean any team member can pick up any notebook and understand it within minutes. These rules apply to all Python, PySpark, and SQL written in this project.
+      </div>
+
+      <div class="code-label">Python and PySpark Rules</div>
+      <div class="code-block"><span class="c-comment"># 1. Type hints on all functions</span>
+def get_access_token(client_id: str, client_secret: str) -> dict:
+
+<span class="c-comment"># 2. Docstring on every function</span>
+    """
+    Exchanges refresh token for a new Strava access token.
+    Args:
+        client_id     : Strava app client ID
+        client_secret : Strava app client secret
+    Returns:
+        dict with access_token, refresh_token, expires_at
+    """
+
+<span class="c-comment"># 3. Snake case for all variables and functions</span>
+access_token = get_access_token(client_id, client_secret)  <span class="c-val">✅</span>
+accessToken  = getAccessToken(clientId, clientSecret)       <span class="c-bad">❌</span>
+
+<span class="c-comment"># 4. Constants in UPPER_SNAKE_CASE at top of notebook</span>
+LOOKBACK_DAYS   = 30
+BRONZE_TABLE    = "bronze_strava_activities"
+KEY_VAULT_URL   = "https://dkfabkv.vault.azure.net/"</div>
+
+      <!-- SQL standards -->
+      <div class="sub-section">
+        <div class="code-label">SQL Rules</div>
+        <div class="code-block"><span class="c-comment"># Keywords in UPPERCASE, identifiers in snake_case</span>
+SELECT
+    athlete_id,
+    start_date_local,
+    elapsed_time_seconds
+FROM   silver_strava_activities
+WHERE  start_date_local >= '2026-01-01'
+ORDER BY start_date_local DESC
+
+<span class="c-comment"># Always use parameterised queries — never f-strings for values</span>
+cursor.execute(
+    "UPDATE dbo.pipeline_control SET last_status = ? WHERE entity = ?",
+    ("success", "activities")
+)                                                           <span class="c-val">✅</span>
+
+cursor.execute(
+    f"UPDATE dbo.pipeline_control SET last_status = '{status}'"
+)                                                           <span class="c-bad">❌ SQL injection risk</span></div>
+      </div>
+
+      <!-- Comment standards -->
+      <div class="sub-section">
+        <div class="code-label">Comment Standards — Comment the WHY, Not the WHAT</div>
+        <div class="code-block"><span class="c-bad"># Bad comment — describes what the code obviously does</span>
+<span class="c-bad"># Add 1 to page number</span>
+page += 1
+
+<span class="c-val"># Good comment — explains why</span>
+<span class="c-val"># Strava returns max 100 activities per page — increment to get next batch</span>
+page += 1
+
+<span class="c-val"># Good comment — explains a non-obvious technical requirement</span>
+<span class="c-val"># Token must be UTF-16-LE encoded for SQL Server token auth</span>
+<span class="c-val"># — UTF-8 causes silent auth failure with no useful error message</span>
+token_bytes = token.encode("UTF-16-LE")</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 6 — GIT AND BRANCHING
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s-git">
+    <button class="section-toggle" onclick="toggle('s-git')">
+      <span class="step-badge badge-git">Standards</span>
+      <span class="section-title">Git &amp; Branching Strategy</span>
+      <span class="section-meta">Branches · Commits · Pull Requests</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Every Fabric workspace is connected to a Git branch. Changes flow from feature branches into main through pull requests — never committed directly to main.
+      </div>
+
+      <div class="code-label">Branch Structure</div>
+      <div class="code-block"><span class="c-val">main</span>          ← maps to PROD workspace — protected, no direct commits
+<span class="c-teal">release</span>       ← maps to TEST workspace — promoted from dev via PR
+<span class="c-key">dev</span>           ← maps to DEV workspace  — integration branch
+<span class="c-comment">feature/*</span>     ← individual work — branch from dev, merge back to dev
+
+<span class="c-comment"># Example feature branch names</span>
+feature/nb_strava_silver_transform
+feature/pl_salesforce_bronze_ingest
+bugfix/fix_watermark_null_handling</div>
+
+      <!-- Flow -->
+      <div class="sub-section">
+        <div class="code-label">How Changes Flow</div>
+        <div class="code-block">Engineer creates feature branch from dev
+        ↓
+Works in DEV workspace — Fabric syncs changes to feature branch
+        ↓
+Raises Pull Request: feature/* → dev
+        ↓
+Architect reviews and approves PR
+        ↓
+Merge to dev → DEV workspace updated automatically
+        ↓
+Architect raises PR: dev → release → TEST workspace updated
+        ↓
+UAT sign-off from business stakeholder
+        ↓
+Architect raises PR: release → main → PROD workspace updated</div>
+
+        <div class="note">
+          <span class="note-icon">⚠</span>
+          <span>Never commit directly to <code>main</code> or <code>release</code>. Even the architect goes through a pull request for production changes. This protects you if anything goes wrong — there is always a review trail.</span>
+        </div>
+      </div>
+
+      <!-- Commit message standard -->
+      <div class="sub-section">
+        <div class="code-label">Commit Message Convention</div>
+        <div class="code-block"><span class="c-comment"># Format: type(scope): short description</span>
+
+<span class="c-val">feat</span>(nb_strava_bronze): add pagination for activities endpoint
+<span class="c-val">fix</span>(pl_strava_ingest): handle 429 rate limit response correctly
+<span class="c-val">refactor</span>(lh_silver): rename column distance to distance_metres
+<span class="c-val">docs</span>(standards): add branching strategy section
+<span class="c-val">chore</span>(env_dev): update pyspark dependency version
+
+<span class="c-comment"># Types: feat · fix · refactor · docs · chore · test</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 7 — PROMOTION RULES
+  ═══════════════════════════════════════ -->
+  <div class="section" id="s-promote">
+    <button class="section-toggle" onclick="toggle('s-promote')">
+      <span class="step-badge badge-promote">Standards</span>
+      <span class="section-title">Promotion Rules — DEV to TEST to PROD</span>
+      <span class="section-meta">Checklist · Approvals · Rollback</span>
+      <svg class="chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+        <path d="M4 6l4 4 4-4"/>
+      </svg>
+    </button>
+    <div class="section-body">
+      <div class="section-desc">
+        Promotion from one environment to the next requires explicit checklist sign-off. Rushing a promotion without the checklist is how production incidents happen.
+      </div>
+
+      <!-- DEV to TEST -->
+      <div class="code-label">Before Promoting DEV → TEST</div>
+      <ul class="steps">
+        <li><span class="step-num">✅</span><span class="step-text">Notebook runs end-to-end without errors in DEV</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">Control table shows <strong>success</strong> status for all entities</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">Bronze files written to correct paths with correct structure</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">No hardcoded secrets anywhere in code</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">All functions have docstrings and type hints</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">Pull request reviewed and approved by architect</span></li>
+      </ul>
+
+      <!-- TEST to PROD -->
+      <div class="code-label" style="margin-top:16px;">Before Promoting TEST → PROD</div>
+      <ul class="steps">
+        <li><span class="step-num">✅</span><span class="step-text">All DEV → TEST checks passed</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">UAT sign-off received from named business stakeholder</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">Pipeline runs successfully in TEST with TEST data volume</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">PROD connections and Key Vault references verified</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">Rollback plan documented — what to do if PROD run fails</span></li>
+        <li><span class="step-num">✅</span><span class="step-text">Promotion approved by architect and permanent employee admin</span></li>
+      </ul>
+
+      <div class="note">
+        <span class="note-icon">⚠</span>
+        <span>Never promote on a Friday afternoon. If something breaks you will be debugging over the weekend. Schedule PROD promotions for Tuesday–Thursday mornings when the full team is available.</span>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="footer">
+    Fabric Team Standards Guide · May 2026
+    <div class="version-tag">v1.0 — Present on Day 1 · Update as agreed with team</div>
+  </div>
+
+</div>
+
+<script>
+  function toggle(id) {
+    const el = document.getElementById(id);
+    el.classList.toggle('open');
+  }
+</script>
+</body>
+</html>
