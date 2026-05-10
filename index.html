@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Microsoft Fabric — Architect Resource Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f1117;
+    --surface: #181c27;
+    --surface2: #1f2435;
+    --border: #2a3050;
+    --border2: #3a4568;
+    --text: #e8eaf0;
+    --text2: #8b93b0;
+    --text3: #4a5270;
+    --blue: #4d7cfe;
+    --blue-dim: #1a2d6b;
+    --blue-light: rgba(77,124,254,0.08);
+    --green: #3dd68c;
+    --green-dim: #0d3d25;
+    --green-light: rgba(61,214,140,0.08);
+    --amber: #f5a623;
+    --amber-dim: #3d2800;
+    --amber-light: rgba(245,166,35,0.08);
+    --coral: #ff6b6b;
+    --coral-dim: rgba(255,107,107,0.12);
+    --purple: #a78bfa;
+    --purple-dim: rgba(167,139,250,0.12);
+    --radius: 10px;
+    --radius-sm: 6px;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2.5rem 1rem 5rem;
+  }
+
+  .page { max-width: 860px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    border-left: 3px solid var(--green);
+    padding-left: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .header-eyebrow {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--green);
+    margin-bottom: 0.5rem;
+  }
+  .header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .header-sub {
+    font-size: 0.875rem;
+    color: var(--text2);
+    margin-top: 0.4rem;
+  }
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .header-meta span { display: flex; align-items: center; gap: 0.35rem; }
+
+  /* Grid */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  /* Card */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.4rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    border-color: var(--border2);
+    background: var(--surface2);
+    transform: translateY(-2px);
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+  .card.green::before  { background: var(--green); }
+  .card.blue::before   { background: var(--blue); }
+  .card.amber::before  { background: var(--amber); }
+  .card.purple::before { background: var(--purple); }
+  .card.coral::before  { background: var(--coral); }
+
+  .card-tag {
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    width: fit-content;
+  }
+  .green  .card-tag { background: var(--green-dim);  color: var(--green); }
+  .blue   .card-tag { background: var(--blue-dim);   color: var(--blue);  }
+  .amber  .card-tag { background: var(--amber-dim);  color: var(--amber); }
+  .purple .card-tag { background: var(--purple-dim); color: var(--purple);}
+  .coral  .card-tag { background: var(--coral-dim);  color: var(--coral); }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+  .card-desc {
+    font-size: 0.8125rem;
+    color: var(--text2);
+    line-height: 1.55;
+    flex: 1;
+  }
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.4rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+  .card-footer-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+  }
+  .card-arrow {
+    font-size: 0.75rem;
+    color: var(--text3);
+    transition: color 0.15s, transform 0.15s;
+  }
+  .card:hover .card-arrow { color: var(--text2); transform: translateX(3px); }
+
+  /* Section label */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-top: 2.5rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div class="header-eyebrow">▸ Resource Hub</div>
+    <h1>Microsoft Fabric<br>Architect Reference</h1>
+    <div class="header-sub">A curated collection of guides, runbooks, and tools for Fabric architects and administrators.</div>
+    <div class="header-meta">
+      <span>📄 6 Documents</span>
+      <span>🏗️ Architecture · Admin · Standards · Operations</span>
+    </div>
+  </div>
+
+  <div class="section-label">Core Guides</div>
+
+  <div class="grid">
+
+    <a class="card green" href="fabric_architect_guide.html">
+      <div class="card-tag">Primary Reference</div>
+      <div class="card-title">Fabric Architect Working Guide</div>
+      <div class="card-desc">The foundational working guide for Fabric architects. Covers governance patterns, workspace design, capacity management, and end-to-end architecture principles.</div>
+      <div class="card-footer">
+        <span class="card-footer-label">fabric_architect_guide.html</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card blue" href="fabric_standards_guide.html">
+      <div class="card-tag">Standards</div>
+      <div class="card-title">Fabric Standards Guide</div>
+      <div class="card-desc">Naming conventions, security baselines, lineage requirements, and organizational standards to enforce consistency across your Fabric estate.</div>
+      <div class="card-footer">
+        <span class="card-footer-label">fabric_standards_guide.html</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card amber" href="fabric_admin_guide.html">
+      <div class="card-tag">Administration</div>
+      <div class="card-title">Fabric Admin Guide</div>
+      <div class="card-desc">Day-to-day administration tasks, tenant settings, capacity configuration, monitoring, and governance controls for Fabric administrators.</div>
+      <div class="card-footer">
+        <span class="card-footer-label">fabric_admin_guide.html</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card purple" href="fabric_architect_runbook.html">
+      <div class="card-tag">Runbook</div>
+      <div class="card-title">Fabric Architect Runbook</div>
+      <div class="card-desc">Step-by-step operational runbook for common architect tasks — onboarding workspaces, capacity scaling, incident response, and change management procedures.</div>
+      <div class="card-footer">
+        <span class="card-footer-label">fabric_architect_runbook.html</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="section-label">Tracking &amp; Readiness</div>
+
+  <div class="grid">
+
+    <a class="card green" href="fabric_architect_checklist.html">
+      <div class="card-tag">Checklist</div>
+      <div class="card-title">Architect Checklist</div>
+      <div class="card-desc">Interactive pre-deployment and review checklist covering security, governance, data ingestion, access controls, and go-live readiness gates.</div>
+      <div class="card-footer">
+        <span class="card-footer-label">fabric_architect_checklist.html</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+    <a class="card coral" href="fabric_architect_gap_tracker.html">
+      <div class="card-tag">Gap Tracker</div>
+      <div class="card-title">Architect Gap Tracker</div>
+      <div class="card-desc">Track open gaps, risks, and remediation items across your Fabric implementation. Log findings, assign owners, and monitor resolution status.</div>
+      <div class="card-footer">
+        <span class="card-footer-label">fabric_architect_gap_tracker.html</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+
+  </div>
+
+</div>
+</body>
+</html>
